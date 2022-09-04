@@ -1,0 +1,13 @@
+[package]
+name = "cron"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[features]
+default = [
+    "serde"
+]
+
+[dependencies]
+serde = { version = "1.0.142", default-features = false, optional = true }

@@ -1,0 +1,7 @@
+[package]
+name = "resolver"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+trust-dns-resolver = { version = "0.21.2" }
