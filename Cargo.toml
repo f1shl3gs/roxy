@@ -46,7 +46,6 @@ thiserror = { version = "1.0.32" }
 # Log
 resolver = { path = "lib/resolver" }
 tracing = { version = "0.1.36", default-features = false }
-tracing-subscriber = { version = "0.3.15", default-features = false, features = ["std", "fmt"] }
 
 # DNS
 trust-dns-proto = { version = "0.22.0" }

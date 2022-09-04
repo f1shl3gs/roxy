@@ -2,6 +2,7 @@ mod config;
 mod controller;
 mod dns;
 mod http;
+mod log;
 mod relay;
 mod serde;
 mod signals;

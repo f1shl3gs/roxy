@@ -1,17 +1,24 @@
-use tracing::Level;
-use tracing_subscriber::fmt::fmt;
+use tracing::{Dispatch, Level};
+
+use crate::log::Logger;
 
 pub fn init(level: Level, timestamp: bool) {
-    let base = fmt().with_max_level(level).with_file(false);
+    let logger = Logger::new(level, timestamp);
+    let dispatcher = Dispatch::new(logger);
 
-    if !timestamp {
-        base.without_time().init()
-    } else {
-        base.init()
-    }
+    tracing::dispatcher::set_global_default(dispatcher).expect("set global logger failed");
 }
 
 #[cfg(test)]
 pub fn test_init() {
-    tracing_subscriber::fmt::init()
+    init(Level::INFO, true)
+}
+
+#[test]
+fn log() {
+    test_init();
+
+    info!("abc");
+    info!(message = "abc");
+    info!(message = "abc", foo = "bar");
 }
