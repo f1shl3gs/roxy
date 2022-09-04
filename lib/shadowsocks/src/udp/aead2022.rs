@@ -51,14 +51,13 @@ use std::hash::{Hash, Hasher};
 use std::io::{Cursor, Seek, SeekFrom};
 use std::rc::Rc;
 use std::sync::Arc;
-use std::time::Duration;
 use std::{io, slice};
 
 use aes::cipher::{BlockDecrypt, BlockEncrypt, KeyInit};
 use aes::{Aes128, Aes256, Block};
 use byte_string::ByteStr;
 use bytes::{Buf, BufMut, Bytes, BytesMut};
-use lru_time_cache::LruCache;
+use lru_cache::LruCache;
 use tracing::{error, trace};
 
 use crate::config::{method_support_eih, ServerUser};
@@ -134,14 +133,15 @@ impl Ord for CipherKey {
     }
 }
 
-const CIPHER_CACHE_DURATION: Duration = Duration::from_secs(30);
-const CIPHER_CACHE_LIMIT: usize = 102400;
+// const CIPHER_CACHE_DURATION: Duration = Duration::from_secs(30);
+const CIPHER_CACHE_LIMIT: usize = 4 * 1024;
 
 thread_local! {
     static CIPHER_CACHE: RefCell<LruCache<CipherKey, Rc<UdpCipher>>> =
-        RefCell::new(LruCache::with_expiry_duration_and_capacity(CIPHER_CACHE_DURATION, CIPHER_CACHE_LIMIT));
+        RefCell::new(LruCache::new(CIPHER_CACHE_LIMIT));
 }
 
+// TODO: TTL!?
 fn get_cipher(method: CipherKind, key: &[u8], session_id: u64) -> Rc<UdpCipher> {
     CIPHER_CACHE.with(|cache| {
         let mut cache = cache.borrow_mut();
@@ -153,10 +153,17 @@ fn get_cipher(method: CipherKind, key: &[u8], session_id: u64) -> Rc<UdpCipher> 
             session_id,
         };
 
-        cache
-            .entry(cache_key)
-            .or_insert_with(|| Rc::new(UdpCipher::new(method, key, session_id)))
-            .clone()
+        let cipher = match cache.get_mut(&cache_key) {
+            Some(cipher) => cipher.clone(),
+            None => {
+                let cipher = Rc::new(UdpCipher::new(method, key, session_id));
+                cache.insert(cache_key, cipher.clone());
+
+                cipher
+            }
+        };
+
+        cipher
     })
 }
 

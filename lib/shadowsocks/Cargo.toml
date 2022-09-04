@@ -8,7 +8,7 @@ default = []
 
 [dev-dependencies]
 tokio = { version = "1.20.1", default-features = false, features = ["net", "macros"] }
-trust-dns-resolver = { version = "0.21.2" }
+trust-dns-resolver = { version = "0.22.0" }
 
 [dependencies]
 base64 = { version = "0.13.0" }
@@ -16,7 +16,7 @@ bytes = { version = "1.2.1" }
 byte_string = { version = "1.0.0" }
 futures = { version = "0.3.24", default-features = false, features = ["async-await"] }
 libc = { version = "0.2.127" }
-lru_time_cache = { version = "0.11.11" }
+lru-cache = { version = "0.1.2" }
 percent-encoding = { version = "2.1.0" }
 pin-project-lite = { version = "0.2.9" }
 rand = { version = "0.8.5", default-features = false, features = ["small_rng"] }

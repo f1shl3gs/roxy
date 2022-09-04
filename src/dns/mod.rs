@@ -1,5 +1,6 @@
 mod cache;
-mod client;
+// client is not used for now
+// mod client;
 mod config;
 mod error;
 mod hijack;

@@ -2,7 +2,7 @@ use std::ops::Add;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 
-use lru::LruCache;
+use lru_cache::LruCache;
 use parking_lot::Mutex;
 use trust_dns_proto::op::{Edns, Query, ResponseCode};
 use trust_dns_proto::rr::Record;
@@ -37,11 +37,11 @@ impl Cache {
         let query = req.query();
         let mut cached = self.lru.lock();
 
-        match cached.get(query) {
+        match cached.get_mut(query) {
             Some(entry) => {
                 if entry.expire_at > Instant::now() {
                     // cache expired
-                    cached.pop(query);
+                    cached.remove(query);
                     return None;
                 }
 
@@ -67,11 +67,11 @@ impl Cache {
         let query = resp.query;
         let mut cached = self.lru.lock();
 
-        if cached.contains(query) {
+        if cached.contains_key(query) {
             return;
         }
 
-        cached.put(
+        cached.insert(
             query.clone(),
             Entry {
                 expire_at: Instant::now().add(self.ttl),

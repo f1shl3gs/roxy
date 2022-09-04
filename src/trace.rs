@@ -4,7 +4,7 @@ use tracing_subscriber::fmt::fmt;
 pub fn init(level: Level, timestamp: bool) {
     let base = fmt().with_max_level(level).with_file(false);
 
-    if timestamp {
+    if !timestamp {
         base.without_time().init()
     } else {
         base.init()
