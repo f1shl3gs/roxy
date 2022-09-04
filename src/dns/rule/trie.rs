@@ -1,4 +1,3 @@
-use smol_str::SmolStr;
 use std::collections::HashSet;
 
 use trust_dns_proto::rr::Name;

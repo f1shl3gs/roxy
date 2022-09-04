@@ -1,4 +1,3 @@
-use std::fmt::Formatter;
 use std::io;
 use std::io::{Cursor, Read};
 use std::str::Utf8Error;
@@ -13,30 +12,23 @@ use trust_dns_resolver::error::ResolveError;
 
 const HANDSHAKE_TYPE_CLIENT_HELLO: u8 = 1;
 
-#[derive(Debug)]
+#[derive(Debug, thiserror::Error)]
 pub enum Error {
+    #[error(transparent)]
     Io(io::Error),
-
+    #[error(transparent)]
     Resolve(ResolveError),
-
+    #[error("unknown protocol")]
     UnknownProtocol,
-
+    #[error("Host header not found")]
     HostNotFound,
-
+    #[error("invalid request header {0}")]
     InvalidRequestHeader(Utf8Error),
-
+    #[error("invalid sni {0}")]
     InvalidSNI(FromUtf8Error),
-
+    #[error("TLS extension is not present")]
     TlsExtensionMissing,
 }
-
-impl std::fmt::Display for Error {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        todo!()
-    }
-}
-
-impl std::error::Error for Error {}
 
 impl From<ResolveError> for Error {
     fn from(err: ResolveError) -> Self {
@@ -60,7 +52,7 @@ pub async fn destination_addr(stream: &mut TcpStream) -> Result<(String, u16), E
     let mut buf = [0; 1024];
 
     // TODO: something wrong might happened, retry this?
-    let n = stream.peek(&mut buf).await?;
+    let _n = stream.peek(&mut buf).await?;
     let mut port = 80;
 
     let domain = match buf[0] {
@@ -173,7 +165,7 @@ fn tls_sni(buf: &[u8]) -> Result<String, Error> {
     if msg_type != HANDSHAKE_TYPE_CLIENT_HELLO {
         return Err(Error::UnknownProtocol);
     }
-    let msg_length = reader.read_u24()?; // length
+    let _msg_length = reader.read_u24()?; // length
 
     // Parse ClientHelloMessage
     // See: https://www.rfc-editor.org/rfc/rfc5246#section-7.4.1.2
@@ -229,7 +221,7 @@ fn tls_sni(buf: &[u8]) -> Result<String, Error> {
         }
 
         // ServerNameList
-        let snl_len = reader.read_u16()?;
+        let _snl_len = reader.read_u16()?;
         loop {
             // NameType & length
             let name_type = reader.read_u8()?;

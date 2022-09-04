@@ -2,7 +2,7 @@ use std::net::SocketAddr;
 
 use trust_dns_proto::error::{ProtoErrorKind, ProtoResult};
 use trust_dns_proto::op::{Edns, Header, Message, Query};
-use trust_dns_proto::rr::{Name, Record};
+use trust_dns_proto::rr::Record;
 use trust_dns_proto::serialize::binary::{BinDecodable, BinDecoder};
 use trust_dns_proto::xfer::SerialMessage;
 
@@ -30,10 +30,6 @@ impl Request {
     /// Question carries the query name and other query parameters.
     pub fn query(&self) -> &Query {
         &self.query
-    }
-
-    pub fn name(&self) -> &Name {
-        self.query.name()
     }
 
     pub fn from_message(message: SerialMessage, src: SocketAddr) -> ProtoResult<Self> {

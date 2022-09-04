@@ -44,10 +44,8 @@
 //! +--------------+---------------+--------------+------------+
 //! ```
 
-use std::collections::HashMap;
 use std::io::{Cursor, ErrorKind, Read};
 use std::pin::Pin;
-use std::sync::Arc;
 use std::task::{Context, Poll};
 use std::{io, slice, task};
 
@@ -60,7 +58,7 @@ use futures::ready;
 use tokio::io::{AsyncRead, AsyncWrite, ReadBuf};
 use tracing::{error, trace};
 
-use crate::config::{method_support_eih, ServerUser};
+use crate::config::method_support_eih;
 use crate::crypto::{Cipher, CipherKind};
 use crate::sys::get_now_timestamp;
 
@@ -122,12 +120,6 @@ pub struct DecryptedReader {
     data_chunk_count: u64,
     user_key: Option<Bytes>,
     handshaked: bool,
-}
-
-/// Server multi-users manager
-#[derive(Clone, Debug)]
-pub struct ServerUserManager {
-    users: HashMap<Bytes, Arc<ServerUser>>,
 }
 
 impl DecryptedReader {

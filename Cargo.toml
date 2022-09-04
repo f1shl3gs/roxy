@@ -49,16 +49,15 @@ tracing = { version = "0.1.36", default-features = false }
 tracing-subscriber = { version = "0.3.15", default-features = false, features = ["std", "fmt"] }
 
 # DNS
-trust-dns-proto = { version = "0.21.2" }
-trust-dns-resolver = { version = "0.21.2", default-features = false, features = ["tokio-runtime"] }
+trust-dns-proto = { version = "0.22.0" }
+trust-dns-resolver = { version = "0.22.0", default-features = false, features = ["tokio-runtime"] }
 # this crate can reduce memory usage of domain rule trie
-smol_str = { version = "0.1.23", default-features = false }
+# smol_str = { version = "0.1.23", default-features = false }
 bloom = { version = "0.3.2" }
 
 # HTTP
 hyper = { version = "0.14.20", default-features = false, features = ["client", "http1", "server", "tcp", "stream"] }
 hyper-rustls = { version = "0.23.0", default-features = false, features = ["http1", "native-tokio" ] }
-rustls = { version = "0.20.6" }
 
 # Async
 futures = { version = "0.3.24", default-features = false, features = ["async-await"] }

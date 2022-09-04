@@ -10,7 +10,6 @@ pub use config::Config;
 use resolver::Resolver;
 
 pub struct Upstream {
-    resolver: Resolver,
     balancer: Balancer,
 }
 
@@ -24,15 +23,10 @@ pub enum Error {
 
 impl Upstream {
     pub async fn new(config: Config, resolver: Resolver) -> Result<Self, Error> {
-        let balancer = Balancer::new(
-            resolver.clone(),
-            config.load_balance,
-            config.check,
-            config.provider,
-        )
-        .await?;
+        let balancer =
+            Balancer::new(resolver, config.load_balance, config.check, config.provider).await?;
 
-        Ok(Self { resolver, balancer })
+        Ok(Self { balancer })
     }
 
     pub fn balancer(&self) -> Balancer {

@@ -1,4 +1,3 @@
-use std::io;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
 use std::time::Duration;
@@ -220,13 +219,6 @@ fn should_switch(old: u32, new: u32) -> bool {
     (old - new) as f64 / old as f64 > 0.1
 }
 
-fn server_formatter(svr: &ServerConfig) -> String {
-    match svr.remarks() {
-        Some(remarks) => format!("{} {}", remarks, svr.addr()),
-        None => svr.addr().to_string(),
-    }
-}
-
 #[derive(Debug, thiserror::Error)]
 pub enum BalanceError {
     #[error("init server provider failed, {0}")]
@@ -341,10 +333,6 @@ impl Balancer {
         let inner = &self.inner;
 
         inner.servers[inner.best_udp.load(Ordering::Relaxed)].clone()
-    }
-
-    async fn reset(&self, servers: Vec<ServerConfig>) -> io::Result<()> {
-        todo!()
     }
 
     /// Get the server list

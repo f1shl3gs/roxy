@@ -1,20 +1,15 @@
 use std::fmt::{Display, Formatter};
 use std::net::AddrParseError;
 
-use trust_dns_proto::error::ProtoError;
 use trust_dns_resolver::error::ResolveError;
 
 use crate::dns::rule;
 
 #[derive(Debug)]
 pub enum Error {
-    UnexpectedClose,
-
     Resolve(ResolveError),
 
     InvalidIpAddress(AddrParseError),
-
-    InvalidHostname(ProtoError),
 
     Reject(rule::Error),
 

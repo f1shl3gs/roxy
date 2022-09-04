@@ -92,7 +92,7 @@ fn main() {
             while let Some(result) = tasks.next().await {
                 match result {
                     Ok(Ok(())) => continue,
-                    Ok(Err(err)) => {
+                    Ok(Err(_err)) => {
                         // Some task is returned with error, shutdown root CancellationToken, and exit
                         exit(1);
                     }

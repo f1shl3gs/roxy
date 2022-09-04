@@ -3,6 +3,10 @@ use std::{fmt, io};
 
 #[rustfmt::skip]
 mod consts {
+    //! Only some of the consts are use
+
+    #![allow(unused)]
+
     pub const SOCKS5_AUTH_METHOD_NOT_ACCEPTABLE:       u8 = 0xff;
 
     pub const SOCKS5_CMD_TCP_CONNECT:                  u8 = 0x01;

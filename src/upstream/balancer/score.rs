@@ -197,12 +197,6 @@ impl Score {
         self.score.store(updated, Ordering::Release);
         updated
     }
-
-    /// Report request failure of this server, which will eventually records
-    /// an `Error` score
-    pub fn report_failure(&self) -> u32 {
-        self.push_score(0)
-    }
 }
 
 impl Debug for Score {
