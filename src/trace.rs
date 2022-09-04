@@ -21,4 +21,6 @@ fn log() {
     info!("abc");
     info!(message = "abc");
     info!(message = "abc", foo = "bar");
+    debug!("blah blah");
+    warn!("warn");
 }

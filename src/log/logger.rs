@@ -24,7 +24,7 @@ impl Logger {
 
 impl Subscriber for Logger {
     fn enabled(&self, metadata: &Metadata<'_>) -> bool {
-        *metadata.level() >= self.level
+        *metadata.level() <= self.level
     }
 
     fn new_span(&self, _span: &Attributes<'_>) -> Id {
