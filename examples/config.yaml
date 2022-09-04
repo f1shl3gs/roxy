@@ -3,7 +3,9 @@
 # Optional
 # worker: 4
 
-# resolver used for resolve the domains of providers, DoH and shadowsocks server
+# Resolver used for resolve the domains of providers, DNS over HTTP(S) and shadowsocks server
+#
+# Required
 resolvers:
   - 114.114.114.114:53
 

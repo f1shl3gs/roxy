@@ -4,4 +4,4 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-trust-dns-resolver = { version = "0.22.0" }
+trust-dns-resolver = { version = "0.22.0", default-features = false, features = ["tokio-runtime"] }

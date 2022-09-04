@@ -30,12 +30,6 @@ impl Resolver {
         Ok(Self(Arc::new(resolver)))
     }
 
-    pub fn system() -> Self {
-        Self(Arc::new(
-            TokioAsyncResolver::tokio_from_system_conf().unwrap(),
-        ))
-    }
-
     pub fn from(resolver: TokioAsyncResolver) -> Self {
         Self(Arc::new(resolver))
     }

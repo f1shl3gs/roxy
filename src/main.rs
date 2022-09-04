@@ -50,13 +50,9 @@ fn main() {
         let mut tasks = FuturesUnordered::new();
 
         // Build resolver for query provider's endpoint and server domain.
-        let resolver = if conf.resolvers.is_empty() {
-            info!(message = "use system's default config for resolver");
-            Resolver::system()
-        } else {
-            info!(message = "use custom dns servers", resolvers = ?conf.resolvers);
-            Resolver::new(conf.resolvers).expect("initial resolver failed")
-        };
+        info!(message = "use custom dns servers", resolvers = ?conf.resolvers);
+        // Serde will make sure conf.resolvers is not empty, cause we don't use default for this field.
+        let resolver = Resolver::new(conf.resolvers).expect("initial resolver failed");
 
         // init DNS server
         let dns = dns::Server::new(conf.dns, resolver.clone())
