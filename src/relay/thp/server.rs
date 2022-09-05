@@ -54,7 +54,7 @@ pub async fn serve(config: Config, balancer: Balancer, resolver: Resolver) -> io
                         match ProxyStream::connect(server.config(), target, &resolver, &Default::default()).await {
                             Ok(proxy) => {
                                 if let Err(err) = proxy.proxy(local).await {
-                                    warn!(message = "proxy error", ?src, relay = ?server.remarks());
+                                    warn!(message = "proxy error", ?err, ?src, relay = ?server.remarks());
                                     server.report_failure();
                                 }
 
