@@ -15,19 +15,19 @@ use crate::tcp::{aead, aead2022};
 #[derive(thiserror::Error, Debug)]
 pub enum ProtocolError {
     #[error(transparent)]
-    IoError(#[from] io::Error),
+    Io(#[from] io::Error),
     #[error(transparent)]
-    AeadError(#[from] aead::ProtocolError),
+    Aead(#[from] aead::ProtocolError),
     #[error(transparent)]
-    Aead2022Error(#[from] aead2022::ProtocolError),
+    Aead2022(#[from] aead2022::ProtocolError),
 }
 
 impl From<ProtocolError> for io::Error {
     fn from(err: ProtocolError) -> io::Error {
         match err {
-            ProtocolError::IoError(err) => err,
-            ProtocolError::AeadError(err) => err.into(),
-            ProtocolError::Aead2022Error(err) => err.into(),
+            ProtocolError::Io(err) => err,
+            ProtocolError::Aead(err) => err.into(),
+            ProtocolError::Aead2022(err) => err.into(),
         }
     }
 }

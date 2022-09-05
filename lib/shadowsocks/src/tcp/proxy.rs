@@ -54,8 +54,8 @@ impl ProxyStream {
     ) -> io::Result<Self> {
         let stream = match conf.addr() {
             Address::SocketAddress(addr) => connect_server_with_opts(*addr, opts).await?,
-            Address::DomainNameAddress(dn, port) => {
-                let addr = resolver.resolve(&dn, *port).await?;
+            Address::DomainNameAddress(domain, port) => {
+                let addr = resolver.resolve(domain, *port).await?;
                 connect_server_with_opts(addr, opts).await?
             }
         };
@@ -115,7 +115,7 @@ async fn connect_server_with_opts(addr: SocketAddr, opts: &ConnectOpts) -> io::R
         if ret != 0 {
             let err = io::Error::last_os_error();
             error!(message = "set SO_MARK failed", ?err);
-            return Err(err.into());
+            return Err(err);
         }
     }
 
@@ -202,48 +202,44 @@ impl AsyncRead for ProxyStream {
     ) -> Poll<io::Result<()>> {
         let mut this = self.project();
 
-        loop {
-            match this.read_state {
-                ReadState::Established => {
-                    return this.stream.poll_read_decrypted(cx, buf).map_err(Into::into);
-                }
+        return match this.read_state {
+            ReadState::Established => this.stream.poll_read_decrypted(cx, buf).map_err(Into::into),
 
-                // AEAD2022
-                ReadState::CheckRequestNonce => {
-                    ready!(this.stream.as_mut().poll_read_decrypted(cx, buf))?;
+            // AEAD2022
+            ReadState::CheckRequestNonce => {
+                ready!(this.stream.as_mut().poll_read_decrypted(cx, buf))?;
 
-                    // REQUEST_NONCE should be in the respond packet (header) of AEAD-2022.
-                    //
-                    // If received_request_nonce() is None, then:
-                    // 1. method.salt_len() == 0, no checking required.
-                    // 2. TCP stream read() returns EOF before receiving the header, no checking required.
-                    //
-                    // poll_read_decrypted will wait until the first non-zero size data chunk.
-                    let (data_chunk_count, _) = this.stream.current_data_chunk_remaining();
-                    if data_chunk_count > 0 {
-                        // data_chunk_count > 0, so the reader received at least 1 data chunk
-                        let sent_nonce = this.stream.sent_nonce();
-                        let sent_nonce = if sent_nonce.is_empty() {
-                            None
-                        } else {
-                            Some(sent_nonce)
-                        };
+                // REQUEST_NONCE should be in the respond packet (header) of AEAD-2022.
+                //
+                // If received_request_nonce() is None, then:
+                // 1. method.salt_len() == 0, no checking required.
+                // 2. TCP stream read() returns EOF before receiving the header, no checking required.
+                //
+                // poll_read_decrypted will wait until the first non-zero size data chunk.
+                let (data_chunk_count, _) = this.stream.current_data_chunk_remaining();
+                if data_chunk_count > 0 {
+                    // data_chunk_count > 0, so the reader received at least 1 data chunk
+                    let sent_nonce = this.stream.sent_nonce();
+                    let sent_nonce = if sent_nonce.is_empty() {
+                        None
+                    } else {
+                        Some(sent_nonce)
+                    };
 
-                        if sent_nonce != this.stream.received_request_nonce() {
-                            return Err(io::Error::new(
-                                ErrorKind::Other,
-                                "received TCP reponse header with unmatched salt",
-                            ))
-                            .into();
-                        }
-
-                        *(this.read_state) = ReadState::Established
+                    if sent_nonce != this.stream.received_request_nonce() {
+                        return Err(io::Error::new(
+                            ErrorKind::Other,
+                            "received TCP response header with unmatched salt",
+                        ))
+                        .into();
                     }
 
-                    return Ok(()).into();
+                    *(this.read_state) = ReadState::Established
                 }
+
+                Ok(()).into()
             }
-        }
+        };
     }
 }
 

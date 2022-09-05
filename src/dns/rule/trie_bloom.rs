@@ -50,7 +50,7 @@ impl Trie {
             }
         }
 
-        return false;
+        false
     }
 }
 

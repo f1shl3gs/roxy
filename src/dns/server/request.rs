@@ -10,7 +10,7 @@ use trust_dns_proto::xfer::SerialMessage;
 pub struct Request {
     // message fields
     pub(crate) header: Header,
-    pub(crate) query: Query,
+    query: Query,
     answers: Vec<Record>,
     name_servers: Vec<Record>,
     additionals: Vec<Record>,
@@ -22,11 +22,6 @@ pub struct Request {
 }
 
 impl Request {
-    /// Return the request header
-    pub fn header(&self) -> &Header {
-        &self.header
-    }
-
     /// Question carries the query name and other query parameters.
     pub fn query(&self) -> &Query {
         &self.query

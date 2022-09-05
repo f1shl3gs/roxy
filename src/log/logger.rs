@@ -77,7 +77,7 @@ impl Subscriber for Logger {
             buf.push('\n');
 
             let mut writer = std::io::stdout();
-            writer
+            let _ = writer
                 .write(buf.as_bytes())
                 .expect("write log to stdout failed");
 
@@ -135,8 +135,8 @@ impl<'a> field::Visit for Visitor<'a> {
                 write!(self.buf, "{:?}", value).expect("write message to log buffer failed");
             }
             name => {
-                let name = if name.starts_with("r#") {
-                    &name[2..]
+                let name = if let Some(stripped) = name.strip_prefix("r#") {
+                    stripped
                 } else {
                     name
                 };

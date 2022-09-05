@@ -4,8 +4,8 @@ use parking_lot::RwLock;
 use resolver::Resolver;
 use trust_dns_proto::rr::Name;
 
-use crate::dns::config::RejectConfig;
 use crate::dns::{
+    config::RejectConfig,
     rule,
     rule::{Error, Trie},
 };

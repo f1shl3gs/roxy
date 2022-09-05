@@ -3,8 +3,9 @@ use super::table::{
     NODES, NODES_BITS_CHILDREN, NODES_BITS_ICANN, NODES_BITS_TEXT_LENGTH, NODES_BITS_TEXT_OFFSET,
     NODE_TYPE_EXCEPTION, NODE_TYPE_NORMAL, NUM_TLD, TEXT,
 };
+use std::cmp::Ordering;
 
-const NOT_FOUND: u32 = 1 << 32 - 1;
+const NOT_FOUND: u32 = 1 << (32 - 1);
 
 pub fn effective_tld_plus_one(domain: &str) -> Option<&str> {
     if domain.starts_with('.') || domain.ends_with('.') || domain.contains("..") {
@@ -94,7 +95,7 @@ pub fn public_suffix(domain: &[u8]) -> (&[u8], bool) {
         return (&domain[(1 + li) as usize..], icann);
     }
 
-    return (&domain[suffix as usize..], icann);
+    (&domain[suffix as usize..], icann)
 }
 
 // find returns the index of the node in the range [lo, hi) whose label equals
@@ -105,16 +106,14 @@ fn find(label: &[u8], mut lo: u32, mut hi: u32) -> u32 {
         let mid = lo + (hi - lo) / 2;
         let s = node_label(mid);
 
-        if s < label {
-            lo = mid + 1;
-        } else if s == label {
-            return mid;
-        } else {
-            hi = mid;
+        match s.cmp(label) {
+            Ordering::Less => lo = mid + 1,
+            Ordering::Equal => return mid,
+            _ => hi = mid,
         }
     }
 
-    return NOT_FOUND;
+    NOT_FOUND
 }
 
 // node_label returns the label for the i'th node.

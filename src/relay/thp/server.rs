@@ -61,7 +61,7 @@ pub async fn serve(config: Config, balancer: Balancer, resolver: Resolver) -> io
                                 return Ok(());
                             },
                             Err(err) => {
-                                debug!(message = "connect proxy failed", ?err, relay = server.remarks());
+                                warn!(message = "connect proxy failed, try next", ?err, relay = server.remarks());
                                 server.report_failure()
                             }
                         }

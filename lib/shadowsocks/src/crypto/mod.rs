@@ -28,20 +28,17 @@ pub enum CipherKind {
 
 impl CipherKind {
     pub fn is_aead(&self) -> bool {
-        match *self {
-            CipherKind::AES_128_GCM | CipherKind::AES_256_GCM => true,
-            _ => false,
-        }
+        matches!(*self, CipherKind::AES_128_GCM | CipherKind::AES_256_GCM)
     }
 
     pub fn is_aead2022(&self) -> bool {
-        match *self {
+        matches!(
+            *self,
             CipherKind::AEAD2022_BLAKE3_AES_128_GCM
-            | CipherKind::AEAD2022_BLAKE3_AES_256_GCM
-            | CipherKind::AEAD2022_BLAKE3_CHACHA20_POLY1305
-            | CipherKind::AEAD2022_BLAKE3_CHACHA8_POLY1305 => true,
-            _ => false,
-        }
+                | CipherKind::AEAD2022_BLAKE3_AES_256_GCM
+                | CipherKind::AEAD2022_BLAKE3_CHACHA20_POLY1305
+                | CipherKind::AEAD2022_BLAKE3_CHACHA8_POLY1305
+        )
     }
 
     pub fn category(&self) -> CipherCategory {

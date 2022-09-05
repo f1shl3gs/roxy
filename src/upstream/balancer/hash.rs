@@ -2,7 +2,7 @@ pub fn fnv(data: &[u8]) -> u64 {
     let mut hash = 0u64;
 
     for b in data.iter() {
-        hash = hash ^ (*b as u64);
+        hash ^= *b as u64;
         hash = hash.wrapping_mul(0x100000001b3);
     }
 

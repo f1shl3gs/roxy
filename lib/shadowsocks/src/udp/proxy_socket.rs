@@ -77,8 +77,8 @@ impl ProxySocket {
                 socket.connect(remote).await?;
                 socket
             }
-            Address::DomainNameAddress(dn, port) => {
-                let addr = resolver.resolve(&dn, *port).await?;
+            Address::DomainNameAddress(domain, port) => {
+                let addr = resolver.resolve(domain, *port).await?;
                 let socket = create_udp_socket(addr.into(), opts).await?;
                 socket.connect(addr).await?;
                 socket

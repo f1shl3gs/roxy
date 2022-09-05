@@ -2,12 +2,12 @@ use std::net::SocketAddr;
 
 use trust_dns_proto::error::ProtoResult;
 use trust_dns_proto::op::message::EmitAndCount;
-use trust_dns_proto::op::{message, Edns, Header, Query, ResponseCode};
+use trust_dns_proto::op::{message, Edns, Header, Query};
 use trust_dns_proto::rr::Record;
 use trust_dns_proto::serialize::binary::{BinEncodable, BinEncoder};
 use trust_dns_proto::xfer::SerialMessage;
 
-use crate::dns::server::request::Request;
+use super::Request;
 
 /// A EncodableMessage with borrowed data for Responses in the Server
 #[derive(Debug)]
@@ -36,6 +36,7 @@ impl<'q> EmitAndCount for QueriesEmitAndCount<'q> {
 }
 
 impl<'q> Response<'q> {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         header: Header,
         query: &'q Query,
@@ -71,26 +72,10 @@ impl<'q> Response<'q> {
         }
     }
 
-    pub fn error(req: &'q Request, code: ResponseCode) -> Response<'q> {
-        let mut header = Header::response_from_request(req.header());
-        header.set_response_code(code);
-
-        Self {
-            header,
-            query: req.query(),
-            answers: vec![],
-            name_servers: vec![],
-            soa: vec![],
-            additionals: vec![],
-            sig0: vec![],
-            edns: None,
-        }
-    }
-
     pub fn from_request(req: &'q Request) -> Self {
         Self {
             header: req.header,
-            query: &req.query,
+            query: req.query(),
             answers: vec![],
             name_servers: vec![],
             soa: vec![],

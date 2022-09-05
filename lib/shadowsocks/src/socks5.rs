@@ -92,7 +92,7 @@ impl fmt::Display for Reply {
             Reply::GeneralFailure          => write!(f, "General failure"),
             Reply::HostUnreachable         => write!(f, "Host unreachable"),
             Reply::NetworkUnreachable      => write!(f, "Network unreachable"),
-            Reply::OtherReply(u)           => write!(f, "Other reply ({})", u),
+            Reply::OtherReply(u)       => write!(f, "Other reply ({})", u),
             Reply::TtlExpired              => write!(f, "TTL expired"),
         }
     }
@@ -101,8 +101,8 @@ impl fmt::Display for Reply {
 /// SOCKS5 protocol error
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
-    #[error("{0}")]
-    IoError(#[from] io::Error),
+    #[error(transparent)]
+    Io(#[from] io::Error),
     #[error("address type {0:#x} not supported")]
     AddressTypeNotSupported(u8),
     #[error("address domain name must be UTF-8 encoding")]
@@ -122,7 +122,7 @@ pub enum Error {
 impl From<Error> for io::Error {
     fn from(err: Error) -> io::Error {
         match err {
-            Error::IoError(err) => err,
+            Error::Io(err) => err,
             e => io::Error::new(ErrorKind::Other, e),
         }
     }
@@ -132,7 +132,7 @@ impl Error {
     /// Convert to `Reply` for responding
     pub fn as_reply(&self) -> Reply {
         match *self {
-            Error::IoError(ref err) => match err.kind() {
+            Error::Io(ref err) => match err.kind() {
                 ErrorKind::ConnectionRefused => Reply::ConnectionRefused,
                 _ => Reply::GeneralFailure,
             },

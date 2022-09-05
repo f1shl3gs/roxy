@@ -99,7 +99,8 @@ fn http_host(buf: &[u8]) -> Result<&str, Error> {
 trait ReadExt: Read {
     fn read_u8(&mut self) -> io::Result<u8> {
         let mut buf = [0u8; 1];
-        self.read(&mut buf)?;
+        let n = self.read(&mut buf)?;
+        assert_eq!(n, 1);
 
         Ok(buf[0])
     }

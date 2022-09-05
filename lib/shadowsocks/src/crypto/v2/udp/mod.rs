@@ -4,6 +4,7 @@ use self::aes_gcm::Cipher as AesGcmCipher;
 use crate::crypto::aead::XChaCha20Poly1305 as ChaCha20Poly1305Cipher;
 use crate::crypto::CipherKind;
 
+#[allow(clippy::large_enum_variant)]
 enum CipherVariant {
     AesGcm(AesGcmCipher),
     ChaCha20Poly1305(ChaCha20Poly1305Cipher),

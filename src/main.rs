@@ -103,7 +103,6 @@ fn main() {
         tokio::select! {
             _ = crate::signals::shutdown() => {
                 // shutdown signal received
-                return;
             },
             _ = tasks => {}
         }

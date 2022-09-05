@@ -1,12 +1,12 @@
-use parking_lot::RwLock;
 use std::net::IpAddr;
 use std::sync::Arc;
 
-use crate::dns::config::HijackConfig;
+use parking_lot::RwLock;
 use resolver::Resolver;
 use trust_dns_proto::rr::Name;
 
-use super::rule::{self, Error as RuleError, Trie};
+use crate::dns::config::HijackConfig;
+use crate::dns::rule::{self, Error as RuleError, Trie};
 
 pub struct Hijack {
     trie: Arc<RwLock<Trie>>,

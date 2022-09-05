@@ -6,6 +6,7 @@ use crate::crypto::aead::{Aes128Gcm, Aes256Gcm};
 use crate::crypto::v2::BLAKE3_KEY_DERIVE_CONTEXT;
 use crate::crypto::CipherKind;
 
+#[allow(clippy::large_enum_variant)]
 pub enum Cipher {
     Aes128Gcm(Aes128Gcm),
     Aes256Gcm(Aes256Gcm),

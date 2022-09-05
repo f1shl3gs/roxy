@@ -21,18 +21,12 @@ pub enum Mode {
 impl Mode {
     #[inline]
     fn enable_udp(self) -> bool {
-        match self {
-            Mode::UdpOnly | Mode::TcpAndUdp => true,
-            _ => false,
-        }
+        matches!(self, Mode::UdpOnly | Mode::TcpAndUdp)
     }
 
     #[inline]
     fn enable_tcp(self) -> bool {
-        match self {
-            Mode::TcpOnly | Mode::TcpAndUdp => true,
-            _ => false,
-        }
+        matches!(self, Mode::TcpOnly | Mode::TcpAndUdp)
     }
 }
 

@@ -7,7 +7,8 @@ use parking_lot::Mutex;
 use trust_dns_proto::op::{Edns, Query, ResponseCode};
 use trust_dns_proto::rr::Record;
 
-use super::server::{Request, Response};
+use crate::dns::Request;
+use crate::dns::Response;
 
 pub struct Entry {
     expire_at: Instant,
@@ -50,7 +51,7 @@ impl Cache {
 
                 Some(Response::new(
                     header,
-                    &req.query,
+                    req.query(),
                     entry.answers.clone(),
                     entry.name_servers.clone(),
                     entry.soa.clone(),

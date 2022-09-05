@@ -5,8 +5,7 @@ use trust_dns_resolver::config::{NameServerConfig, Protocol, ResolverConfig, Res
 use trust_dns_resolver::error::ResolveError;
 use trust_dns_resolver::TokioAsyncResolver;
 
-use crate::dns::error::Error;
-use crate::dns::server::{Request, Response};
+use super::{Error, Request, Response};
 
 pub struct Upstream {
     resolver: Arc<TokioAsyncResolver>,
@@ -43,7 +42,7 @@ impl Upstream {
 
         Ok(Response::new(
             req.header,
-            &query,
+            query,
             lookup.record_iter().cloned().collect::<Vec<_>>(),
             vec![],
             vec![],

@@ -17,7 +17,7 @@ pub const NODE_TYPE_EXCEPTION: u32 = 1;
 pub const NUM_TLD: u32 = 1504;
 
 // Text is the combined text of all labels.
-pub const TEXT: &'static str = "9guacuiababia-goracleaningroks-theatree164-balsfjordd-dnshome-we\
+pub const TEXT: &str = "9guacuiababia-goracleaningroks-theatree164-balsfjordd-dnshome-we\
 bservercellikes-piedmonticellocalzoneastasiaetnaamesjevuemielnod\
 umcpeastcoastaldefenceastus2038birdartcenterprisecloudaccesscamb\
 ridgeiseiroumuenchenishiazaindielddanuorrindigenamsosnowiecherni\

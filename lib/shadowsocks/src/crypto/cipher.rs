@@ -3,6 +3,7 @@ use crate::crypto::CipherKind;
 use hkdf::Hkdf;
 use sha1::Sha1;
 
+#[allow(clippy::large_enum_variant)]
 enum CipherVariant {
     Aes128Gcm(Aes128Gcm),
     Aes256Gcm(Aes256Gcm),
@@ -57,7 +58,7 @@ impl Cipher {
     const N_MAX: usize = 24;
 
     pub fn new(kind: CipherKind, key: &[u8], iv_or_salt: &[u8]) -> Self {
-        const SUBKEY_INFO: &'static [u8] = b"ss-subkey";
+        const SUBKEY_INFO: &[u8] = b"ss-subkey";
         const MAX_KEY_LEN: usize = 64;
 
         let ikm = key;
