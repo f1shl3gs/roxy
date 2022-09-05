@@ -3,12 +3,14 @@ use std::io;
 use std::net::{AddrParseError, SocketAddr};
 use std::sync::Arc;
 
-use hyper::header::CONTENT_TYPE;
 use hyper::service::{make_service_fn, service_fn};
 use hyper::{Body, Method, Request, Response, StatusCode};
 use serde::{Deserialize, Serialize};
 
-use crate::controller::stats;
+use super::{
+    response::{err_resp, IntoResponse},
+    stats,
+};
 use crate::upstream::Balancer;
 
 #[derive(Deserialize, Serialize)]
@@ -60,51 +62,16 @@ impl Server {
 
         match (req.method(), path) {
             (&Method::GET, "/stats") => match stats::ProcStat::read() {
-                Ok(stats) => {
-                    let resp = format!(
-                        r##"{{"max_fds": {},"open_fds": {}, "threads": {}, "vss": {}, "rss": {}}}"##,
-                        stats.max_fds, stats.open_fds, stats.threads, stats.vss, stats.rss
-                    );
-
-                    Ok(Response::builder()
-                        .status(StatusCode::OK)
-                        .header(CONTENT_TYPE, "application/json")
-                        .body(resp.into())
-                        .unwrap())
-                }
+                Ok(stats) => Ok(stats.into_resp()),
                 Err(err) => {
                     error!(message = "read proc stats failed", ?err);
 
-                    Ok(Response::builder()
-                        .status(StatusCode::INTERNAL_SERVER_ERROR)
-                        .body(Body::empty())
-                        .unwrap())
+                    Ok(err_resp(StatusCode::INTERNAL_SERVER_ERROR, err))
                 }
             },
             (&Method::GET, "/upstream") => {
                 let stats = state.balancer.stats();
-                let total = stats.len();
-                let mut buf = String::from("[");
-                for (index, stat) in stats.into_iter().enumerate() {
-                    let s = format!(
-                        r##"{{"addr":"{}","remarks":"{}","tcp_score":{},"udp_score":{}}}"##,
-                        stat.addr,
-                        stat.remarks.unwrap_or_default(),
-                        stat.tcp_score,
-                        stat.udp_score
-                    );
-                    buf.push_str(&s);
-                    if index != total - 1 {
-                        buf.push(',');
-                    }
-                }
-                buf.push(']');
-
-                Ok(Response::builder()
-                    .status(StatusCode::OK)
-                    .header(CONTENT_TYPE, "application/json")
-                    .body(Body::from(buf))
-                    .unwrap())
+                Ok(stats.into_resp())
             }
             _ => Ok(not_found()),
         }

@@ -17,7 +17,7 @@ pub struct Config {
 }
 
 pub async fn serve(config: Config, balancer: Balancer, resolver: Resolver) -> io::Result<()> {
-    let mut tasks = vec![];
+    let mut tasks = Vec::with_capacity(config.listen.len());
 
     for addr in config.listen {
         let listener = TcpListener::bind(addr).await?;
@@ -34,31 +34,40 @@ pub async fn serve(config: Config, balancer: Balancer, resolver: Resolver) -> io
                 let balancer = balancer.clone();
                 let resolver = resolver.clone();
 
+                // handle the connect
                 tokio::spawn(async move {
-                    match destination_addr(&mut local).await {
-                        Ok((host, port)) => {
-                            let server = balancer.pick_tcp_server(&host);
-                            let target = Address::DomainNameAddress(host, port);
-
-                            debug!(message = "proxy connection", ?src, ?target, relay = ?server.config().remarks());
-
-                            let proxy = ProxyStream::connect(
-                                server.config(),
-                                target,
-                                &resolver,
-                                &Default::default(),
-                            )
-                            .await?;
-
-                            proxy.proxy(local).await?;
-
-                            Ok(())
-                        }
+                    let (host, port) = match destination_addr(&mut local).await {
+                        Ok(dst) => dst,
                         Err(err) => {
                             warn!(message = "sniff hostname failed", ?err, ?src);
-                            Err(io::Error::new(ErrorKind::Other, err))
+                            return Err(io::Error::new(ErrorKind::Other, err));
+                        }
+                    };
+
+                    // Trying to connect 5 times
+                    for _i in 0..5 {
+                        let server = balancer.pick_tcp_server(&host);
+                        let target = Address::DomainNameAddress(host.clone(), port);
+
+                        debug!(message = "proxy connection", ?src, ?target, relay = ?server.remarks());
+
+                        match ProxyStream::connect(server.config(), target, &resolver, &Default::default()).await {
+                            Ok(proxy) => {
+                                if let Err(err) = proxy.proxy(local).await {
+                                    warn!(message = "proxy error", ?src, relay = ?server.remarks());
+                                    server.report_failure();
+                                }
+
+                                return Ok(());
+                            },
+                            Err(err) => {
+                                debug!(message = "connect proxy failed", ?err, relay = server.remarks());
+                                server.report_failure()
+                            }
                         }
                     }
+
+                    Err(io::Error::new(ErrorKind::NotConnected, "no available proxy"))
                 });
             }
         }));

@@ -55,13 +55,22 @@ impl Subscriber for Logger {
                 }
             };
 
+            let metadata = event.metadata();
+
+            // write timestamp
             if self.timestamp {
                 let date = DateTime::now();
                 write!(&mut buf, "{} ", date).expect("write timestamp to log buffer failed");
             }
 
-            let metadata = event.metadata();
+            // write level
             write!(&mut buf, "{:5} ", metadata.level()).expect("write level to log buffer failed");
+
+            // write module
+            if let Some(module) = metadata.module_path() {
+                buf.push_str(module);
+                buf.push(' ');
+            }
 
             event.record(&mut Visitor { buf });
 

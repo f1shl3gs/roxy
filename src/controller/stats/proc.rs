@@ -1,10 +1,12 @@
 use std::io::Read;
 
 use libc::{sysconf, _SC_PAGESIZE};
+use serde::{Deserialize, Serialize};
 
 const MAXFD_PATTERN: &str = "Max open files";
 const USER_HZ: f64 = 100.0;
 
+#[derive(Deserialize, Serialize)]
 pub struct ProcStat {
     pub open_fds: usize,
     pub max_fds: usize,

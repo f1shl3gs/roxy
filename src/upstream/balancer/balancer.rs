@@ -6,6 +6,7 @@ use futures::stream::StreamExt;
 use futures_util::stream::FuturesUnordered;
 use publicsuffix::effective_tld_plus_one;
 use resolver::Resolver;
+use serde::Serialize;
 use shadowsocks::ServerConfig;
 use tokio::time;
 
@@ -24,16 +25,30 @@ pub struct Server {
 }
 
 impl Server {
+    #[inline]
     pub fn config(&self) -> &ServerConfig {
         &self.config
     }
 
+    #[inline]
     pub fn tcp_score(&self) -> &Score {
         &self.tcp_score
     }
 
+    #[inline]
     pub fn udp_score(&self) -> &Score {
         &self.udp_score
+    }
+
+    #[inline]
+    pub fn report_failure(&self) {
+        self.tcp_score.push_score(0);
+        self.udp_score.push_score(0);
+    }
+
+    #[inline]
+    pub fn remarks(&self) -> Option<&String> {
+        self.config.remarks()
     }
 }
 
@@ -363,6 +378,7 @@ impl Balancer {
     }
 }
 
+#[derive(Serialize)]
 pub struct ServerStats {
     pub addr: String,
     pub remarks: Option<String>,

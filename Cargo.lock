@@ -890,6 +890,7 @@ dependencies = [
  "rand",
  "resolver",
  "serde",
+ "serde_json",
  "serde_yaml",
  "shadowsocks",
  "thiserror",
@@ -1005,6 +1006,17 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
+]
+
+[[package]]
+name = "serde_json"
+version = "1.0.85"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e55a28e3aaef9d5ce0506d0a14dbba8054ddc7e499ef522dd8b26859ec9d4a44"
+dependencies = [
+ "itoa",
+ "ryu",
+ "serde",
 ]
 
 [[package]]
