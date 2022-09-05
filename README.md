@@ -14,6 +14,10 @@ Tested on my Workstation(AMD & Rocky Linux) and Mikrotik RB5009(awesome).
 examples/config.yaml
 
 ## Rules
+
+Note: `Bloom Filter` is used to save memory, it works fine at most time, but 
+`False Positives` is still there.
+
 Rule is used for handing dns request, it can works like blacklist and whitelist.
 the Syntax looks like
 ```text
