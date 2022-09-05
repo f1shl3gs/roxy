@@ -87,16 +87,16 @@ impl BalancerInner {
                 vfut_tcp.push(checker.check_update_score());
             }
 
-            // if conf.udp_enabled() {
-            //     let checker = Checker::new(
-            //         server.clone(),
-            //         CheckType::Udp,
-            //         self.resolver.clone(),
-            //         self.timeout,
-            //     );
-            //
-            //     vfut_udp.push(checker.check_update_score());
-            // }
+            if conf.udp_enabled() {
+                let checker = Checker::new(
+                    server.clone(),
+                    CheckType::Udp,
+                    self.resolver.clone(),
+                    self.timeout,
+                );
+
+                vfut_udp.push(checker.check_update_score());
+            }
         }
 
         let check_tcp = vfut_tcp.len() > 1;
@@ -143,7 +143,7 @@ impl BalancerInner {
             if first_run {
                 self.best_tcp.store(best_idx, Ordering::Release);
 
-                debug!(
+                info!(
                     message = "chose best TCP server",
                     addr = %best.addr()
                 );
@@ -186,7 +186,7 @@ impl BalancerInner {
             if first_run {
                 self.best_udp.store(best_idx, Ordering::Release);
 
-                debug!(
+                info!(
                     message = "chose best UDP server",
                     addr = %best.addr()
                 );

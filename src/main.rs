@@ -16,7 +16,6 @@ use std::process::exit;
 
 use futures_util::stream::FuturesUnordered;
 use futures_util::{StreamExt, TryFutureExt};
-
 use resolver::Resolver;
 
 use crate::config::Config;
@@ -94,7 +93,7 @@ fn main() {
                         exit(1);
                     }
                     Err(err) => {
-                        // This should never happend
+                        // This should never happened
                         panic!("async task join failed, {}", err);
                     }
                 }
