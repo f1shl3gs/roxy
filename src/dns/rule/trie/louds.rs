@@ -13,7 +13,20 @@
 //!
 //! Slots looks like
 //! -.0123456789abcdefghijklmnopqrstuvwxyz
-
+//!
+//! map node:
+//! 1  bit: node type 0 for dense, 1 for data, 3 for ?
+//! 13 bit: padding
+//! 38 bit: char bitmap
+//! 38 bit: child flag
+//! 38 bit: wildcard flag
+//!
+//! data node:
+//! 1   bit: node type
+//! 4   bit: data length it can represent max 16, fit for data length
+//! 3   bit: padding
+//! 120 bit: data, 15 char
+//!
 fn validate(c: u8) -> bool {
     if c.is_ascii_digit() {
         return true;

@@ -11,6 +11,7 @@ lto = true
 default = [
     "controller",
     "dns",
+    "bloom-trie",
     "tracing/max_level_debug"
 ]
 
@@ -18,6 +19,8 @@ controller = [
     "serde_json"
 ]
 dns = []
+bloom-trie = ["bloom"]
+set-trie = []
 
 [workspace]
 members = [
@@ -53,9 +56,7 @@ tracing = { version = "0.1.36", default-features = false }
 # DNS
 trust-dns-proto = { version = "0.22.0" }
 trust-dns-resolver = { version = "0.22.0", default-features = false, features = ["tokio-runtime"] }
-# this crate can reduce memory usage of domain rule trie
-# smol_str = { version = "0.1.23", default-features = false }
-bloom = { version = "0.3.2" }
+bloom = { version = "0.3.2", optional = true }
 
 # HTTP
 hyper = { version = "0.14.20", default-features = false, features = ["client", "http1", "server", "tcp", "stream"] }

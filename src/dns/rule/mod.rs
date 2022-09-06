@@ -1,7 +1,5 @@
 mod load;
-// mod trie;
-mod trie_bloom;
+mod trie;
 
 pub use load::{load, Error};
-// pub use trie::Trie;
-pub use trie_bloom::Trie;
+pub use trie::Trie;
