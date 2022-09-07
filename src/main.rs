@@ -1,26 +1,13 @@
-mod config;
-mod controller;
-mod dns;
-mod http;
-mod log;
-mod relay;
-mod serde;
 mod signals;
-mod trace;
-mod upstream;
-
-#[macro_use]
-extern crate tracing;
 
 use std::process::exit;
 
 use futures_util::stream::FuturesUnordered;
 use futures_util::{StreamExt, TryFutureExt};
 use resolver::Resolver;
+use tracing::{error, info};
 
-use crate::config::Config;
-use crate::relay::thp;
-use crate::upstream::Upstream;
+use roxy::{controller, dns, thp, trace_init, Config, Upstream};
 
 fn main() {
     let conf = match Config::load() {
@@ -32,7 +19,7 @@ fn main() {
         }
     };
 
-    trace::init(conf.log.level, conf.log.timestamp);
+    trace_init(conf.log.level, conf.log.timestamp);
 
     let runtime = tokio::runtime::Builder::new_multi_thread()
         .worker_threads(conf.worker())

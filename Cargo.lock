@@ -38,12 +38,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "arc-swap"
-version = "1.5.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "983cd8b9d4b02a6dc6ffa557262eb5858a27a0038ffffe21a0f133eaa819a164"
-
-[[package]]
 name = "arrayref"
 version = "0.3.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -871,7 +865,6 @@ dependencies = [
 name = "roxy"
 version = "0.1.0"
 dependencies = [
- "arc-swap",
  "base64",
  "bloom",
  "byte_string",

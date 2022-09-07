@@ -17,7 +17,7 @@ use std::fmt;
 /// All existing `strftime`-like APIs I found were unable to handle the full range of timestamps representable
 /// by `SystemTime`, including `strftime` itself, since tm.tm_year is an int.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) struct DateTime {
+pub struct DateTime {
     year: i64,
     month: u8,
     day: u8,

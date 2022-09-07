@@ -14,12 +14,15 @@ use serde::Serialize;
 use shadowsocks::ServerConfig;
 use tokio::time;
 
+use crate::upstream::balancer::score::Stat;
 use crate::upstream::config::{CheckConfig, LoadBalanceType, ProviderConfig};
 use crate::upstream::provider;
 use crate::upstream::provider::Provider;
 use checker::{CheckType, Checker};
 use hash::{fnv, jumphash};
 use score::Score;
+
+const EXPECTED_CHECK_POINTS_IN_CHECK_WINDOW: u32 = 67;
 
 pub struct Server {
     config: ServerConfig,
@@ -48,6 +51,11 @@ impl Server {
     pub fn report_failure(&self) {
         self.tcp_score.push_score(0);
         self.udp_score.push_score(0);
+    }
+
+    #[inline]
+    pub fn stat(&self) -> Stat {
+        self.tcp_score.stat()
     }
 
     #[inline]
@@ -96,16 +104,16 @@ impl BalancerInner {
                 vfut_tcp.push(checker.check_update_score());
             }
 
-            if conf.udp_enabled() {
-                let checker = Checker::new(
-                    server.clone(),
-                    CheckType::Udp,
-                    self.resolver.clone(),
-                    self.timeout,
-                );
-
-                vfut_udp.push(checker.check_update_score());
-            }
+            // if conf.udp_enabled() {
+            //     let checker = Checker::new(
+            //         server.clone(),
+            //         CheckType::Udp,
+            //         self.resolver.clone(),
+            //         self.timeout,
+            //     );
+            //
+            //     vfut_udp.push(checker.check_update_score());
+            // }
         }
 
         let check_tcp = vfut_tcp.len() > 1;
@@ -275,8 +283,16 @@ impl Balancer {
                 let udp_weight = config.weight().udp_weight();
                 let inner = Server {
                     config,
-                    tcp_score: Score::new(tcp_weight, cc.timeout, cc.interval),
-                    udp_score: Score::new(udp_weight, cc.timeout, cc.interval),
+                    tcp_score: Score::new(
+                        tcp_weight,
+                        cc.timeout,
+                        cc.interval * EXPECTED_CHECK_POINTS_IN_CHECK_WINDOW,
+                    ),
+                    udp_score: Score::new(
+                        udp_weight,
+                        cc.timeout,
+                        cc.interval * EXPECTED_CHECK_POINTS_IN_CHECK_WINDOW,
+                    ),
                 };
 
                 Arc::new(inner)
@@ -385,14 +401,11 @@ impl Balancer {
         self.servers()
             .map(|svr| {
                 let config = svr.config.clone();
-                let tcp_score = svr.tcp_score().score();
-                let udp_score = svr.udp_score().score();
 
                 ServerStats {
                     addr: config.addr().to_string(),
                     remarks: config.remarks().cloned(),
-                    tcp_score,
-                    udp_score,
+                    stat: svr.stat(),
                 }
             })
             .collect()
@@ -403,8 +416,8 @@ impl Balancer {
 pub struct ServerStats {
     pub addr: String,
     pub remarks: Option<String>,
-    pub tcp_score: u32,
-    pub udp_score: u32,
+    #[serde(flatten)]
+    pub stat: Stat,
 }
 
 pub struct ServerIter<'a> {

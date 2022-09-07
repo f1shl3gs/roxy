@@ -1,11 +1,15 @@
 use std::collections::VecDeque;
 use std::fmt::{Debug, Formatter};
 use std::sync::atomic::{AtomicU32, Ordering};
-use std::time::{Duration, Instant};
+use std::time::{Duration, Instant, SystemTime};
 
+use crate::DateTime;
 use parking_lot::Mutex;
+use serde::ser::{SerializeSeq, SerializeStruct};
+use serde::{Serialize, Serializer};
 
 /// Statistic of a remote server
+#[derive(Clone)]
 pub struct Stat {
     /// Median of latency time (in ms)
     ///
@@ -36,6 +40,48 @@ pub struct Stat {
 
     /// Checking window size
     check_window: Duration,
+}
+
+impl Serialize for Stat {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        #[derive(Serialize)]
+        struct Latency {
+            score: u32,
+            timestamp: String,
+        }
+
+        let mut s = serializer.serialize_struct("Stat", 9)?;
+        s.serialize_field("rtt", &self.rtt)?;
+        s.serialize_field("max_server_rtt", &self.max_server_rtt)?;
+        s.serialize_field("fail_rate", &self.fail_rate)?;
+
+        let mut queue = Vec::with_capacity(self.latency_queue.len());
+        for (score, instant) in &self.latency_queue {
+            let elapsed = instant.elapsed();
+            let timestamp = SystemTime::now() - elapsed;
+            let date = DateTime::from(timestamp);
+
+            queue.push(Latency {
+                score: *score,
+                timestamp: date.to_string(),
+            });
+        }
+        s.serialize_field("latency_queue", &queue)?;
+
+        s.serialize_field("latency_stdev", &self.latency_stdev)?;
+        s.serialize_field("max_latency_stdev", &self.max_latency_stdev)?;
+        s.serialize_field("latency_mean", &self.latency_mean)?;
+        s.serialize_field("user_weight", &self.user_weight)?;
+        s.serialize_field(
+            "check_window",
+            &format!("{}s", self.check_window.as_secs_f64()),
+        )?;
+
+        s.end()
+    }
 }
 
 fn max_latency_stdev(max: u32) -> f64 {
@@ -196,6 +242,11 @@ impl Score {
 
         self.score.store(updated, Ordering::Release);
         updated
+    }
+
+    pub fn stat(&self) -> Stat {
+        let stat = self.stat.lock();
+        stat.clone()
     }
 }
 

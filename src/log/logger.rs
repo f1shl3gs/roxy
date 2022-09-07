@@ -9,7 +9,7 @@ use tracing::field::Field;
 use tracing::span::{Attributes, Record};
 use tracing::{field, Event, Id, Level, Metadata, Subscriber};
 
-use crate::log::datetime::DateTime;
+use crate::DateTime;
 
 pub struct Logger {
     level: Level,

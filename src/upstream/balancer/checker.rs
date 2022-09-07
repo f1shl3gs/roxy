@@ -196,8 +196,3 @@ impl Checker {
         }
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-}
