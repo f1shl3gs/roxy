@@ -9,14 +9,14 @@ use shadowsocks::{Address, ProxyStream};
 use tokio::net::TcpListener;
 
 use super::sniffing::destination_addr;
-use crate::upstream::Balancer;
+use crate::Upstream;
 
 #[derive(Deserialize, Serialize)]
 pub struct Config {
     listen: Vec<SocketAddr>,
 }
 
-pub async fn serve(config: Config, balancer: Balancer, resolver: Resolver) -> io::Result<()> {
+pub async fn serve(config: Config, upstream: Upstream, resolver: Resolver) -> io::Result<()> {
     let mut tasks = Vec::with_capacity(config.listen.len());
 
     for addr in config.listen {
@@ -26,7 +26,7 @@ pub async fn serve(config: Config, balancer: Balancer, resolver: Resolver) -> io
             listen = ?addr,
         );
 
-        let balancer = balancer.clone();
+        let balancer = upstream.clone();
         let resolver = resolver.clone();
         tasks.push(tokio::spawn(async move {
             loop {
@@ -46,7 +46,7 @@ pub async fn serve(config: Config, balancer: Balancer, resolver: Resolver) -> io
 
                     // Trying to connect 5 times
                     for _i in 0..5 {
-                        let server = balancer.pick_tcp_server(&host);
+                        let server = balancer.pick(&host).await;
                         let target = Address::DomainNameAddress(host.clone(), port);
 
                         debug!(message = "proxy connection", ?src, ?target, relay = ?server.remarks());

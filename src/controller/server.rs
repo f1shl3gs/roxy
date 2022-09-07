@@ -11,7 +11,7 @@ use super::{
     response::{err_resp, IntoResponse},
     stats,
 };
-use crate::upstream::Balancer;
+use crate::Upstream;
 
 #[derive(Deserialize, Serialize)]
 pub struct Config {
@@ -20,25 +20,25 @@ pub struct Config {
 
 #[derive(Clone)]
 struct State {
-    balancer: Balancer,
+    upstream: Upstream,
 }
 
 pub struct Server {
     listen: SocketAddr,
 
-    balancer: Balancer,
+    upstream: Upstream,
 }
 
 impl Server {
-    pub fn new(config: Config, balancer: Balancer) -> Result<Self, AddrParseError> {
+    pub fn new(config: Config, upstream: Upstream) -> Result<Self, AddrParseError> {
         let listen = config.listen.parse::<SocketAddr>()?;
 
-        Ok(Self { listen, balancer })
+        Ok(Self { listen, upstream })
     }
 
     pub async fn serve(self) -> io::Result<()> {
         let state = Arc::new(State {
-            balancer: self.balancer,
+            upstream: self.upstream,
         });
 
         let service = make_service_fn(move |_conn| {
@@ -70,7 +70,7 @@ impl Server {
                 }
             },
             (&Method::GET, "/upstream") => {
-                let stats = state.balancer.stats();
+                let stats = state.upstream.stats().await;
                 Ok(stats.into_resp())
             }
             _ => Ok(not_found()),

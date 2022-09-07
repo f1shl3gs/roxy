@@ -56,7 +56,7 @@ fn main() {
         // init controller, our RESTful service
         if let Some(cc) = conf.controller {
             let svr =
-                controller::Server::new(cc, upstream.balancer()).expect("create controller server");
+                controller::Server::new(cc, upstream.clone()).expect("create controller server");
             tasks.push(tokio::spawn(svr.serve().inspect_err(|err| {
                 error!(message = "controller failed", ?err);
             })));
@@ -64,7 +64,7 @@ fn main() {
 
         if let Some(tc) = conf.thp {
             tasks.push(tokio::spawn(
-                thp::serve(tc, upstream.balancer(), resolver).inspect_err(|err| {
+                thp::serve(tc, upstream, resolver).inspect_err(|err| {
                     error!(message = "transparent http proxy serve failed", ?err);
                 }),
             ));

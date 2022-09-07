@@ -11,27 +11,19 @@ use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 use tokio::time;
 use tokio::time::Instant;
 
-use crate::upstream::balancer::Server;
-
-#[derive(Debug)]
-pub enum CheckType {
-    Tcp,
-    Udp,
-}
+use super::Server;
 
 pub struct Checker {
     server: Arc<Server>,
-    typ: CheckType,
     resolver: Resolver,
     timeout: Duration,
     connect_opts: ConnectOpts,
 }
 
 impl Checker {
-    pub fn new(server: Arc<Server>, typ: CheckType, resolver: Resolver, timeout: Duration) -> Self {
+    pub fn new(server: Arc<Server>, resolver: Resolver, timeout: Duration) -> Self {
         Self {
             server,
-            typ,
             resolver,
             timeout,
             connect_opts: Default::default(),
@@ -41,24 +33,17 @@ impl Checker {
     /// Checks server's score and update into Score
     pub async fn check_update_score(self) {
         let score = self.check_delay().await.unwrap_or(0);
-        match self.typ {
-            CheckType::Tcp => self.server.tcp_score().push_score(score),
-            CheckType::Udp => self.server.udp_score().push_score(score),
-        };
+        self.server.push_latency(score);
 
         trace!(
             message = "updated remote server score",
-            r#type = ?self.typ,
             addr = ?self.server.config().addr(),
             score
         );
     }
 
     async fn check_request(&self) -> io::Result<()> {
-        match self.typ {
-            CheckType::Tcp => self.check_request_tcp_firefox().await,
-            CheckType::Udp => self.check_request_udp().await,
-        }
+        self.check_request_tcp_firefox().await
     }
 
     /// Detect TCP connectivity with Firefox's http://detectportal.firefox.com/success.txt
@@ -161,7 +146,6 @@ impl Checker {
                 // Got the result ... record its time
                 trace!(
                     message = "checked remote server success",
-                    r#type = ?self.typ,
                     addr = ?self.server.config().addr(),
                     elapsed
                 );
@@ -171,7 +155,6 @@ impl Checker {
             Ok(Err(err)) => {
                 debug!(
                     message = "failed to check server",
-                    r#type = ?self.typ,
                     addr = ?self.server.config().addr(),
                     ?err
                 );
@@ -185,7 +168,6 @@ impl Checker {
                 // Timeout
                 trace!(
                     message = "check remote server timed out",
-                    r#type = ?self.typ,
                     addr = ?self.server.config().addr(),
                     elapsed
                 );
