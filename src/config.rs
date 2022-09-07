@@ -69,7 +69,10 @@ pub enum Error {
 
 impl Config {
     pub fn load() -> Result<Self, Error> {
-        let content = std::fs::read("config.yaml")?;
+        let content = match std::env::var("ROXY_CONFIG") {
+            Ok(path) => std::fs::read(path),
+            _ => std::fs::read("config.yaml")
+        }?;
 
         let cfg = serde_yaml::from_slice::<Config>(content.as_slice())?;
 
