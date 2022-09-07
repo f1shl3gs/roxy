@@ -116,6 +116,11 @@ impl Peers {
         let mut best_latency = u32::MAX;
         for (index, server) in servers.iter().enumerate() {
             let latency = server.latency();
+            if latency == 0 {
+                // not alive
+                continue;
+            }
+
             if latency < best_latency {
                 best_index = index;
                 best_latency = latency;
