@@ -155,6 +155,8 @@ impl Upstream {
         let provider = Provider::new(config.provider.endpoint, resolver.clone());
         let servers = provider.load().await?;
 
+        info!(message = "load proxy servers success", total = servers.len());
+
         let peers = Arc::new(RwLock::new(Arc::new(Peers::new(servers))));
         {
             let cp = peers.read().await;
