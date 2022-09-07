@@ -19,3 +19,7 @@ build_aarch64-unknown-linux-musl:
 	cross build \
 		--release \
 		--target aarch64-unknown-linux-musl
+
+container_aarch64-unknown-linux-musl: build_aarch64-unknown-linux-musl
+	cp target/aarch64-unknown-linux-musl/release/roxy roxy
+	docker build -t roxy:aarch64-unknown-linux-musl --platform linux/arm64 .
