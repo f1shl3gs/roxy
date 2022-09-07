@@ -401,10 +401,12 @@ impl Balancer {
         self.servers()
             .map(|svr| {
                 let config = svr.config.clone();
+                let score = svr.tcp_score.score();
 
                 ServerStats {
                     addr: config.addr().to_string(),
                     remarks: config.remarks().cloned(),
+                    score,
                     stat: svr.stat(),
                 }
             })
@@ -416,6 +418,7 @@ impl Balancer {
 pub struct ServerStats {
     pub addr: String,
     pub remarks: Option<String>,
+    pub score: u32,
     #[serde(flatten)]
     pub stat: Stat,
 }
