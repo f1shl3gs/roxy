@@ -1,11 +1,9 @@
 use std::io;
-use std::net::{Ipv4Addr, SocketAddr};
 use std::sync::Arc;
 use std::time::Duration;
 
 use byte_string::ByteStr;
 use resolver::Resolver;
-use shadowsocks::UdpSocketControlData;
 use shadowsocks::{Address, ConnectOpts, ProxyStream};
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 use tokio::time;
@@ -80,53 +78,6 @@ impl Checker {
                 "unexpected response from http://detectportal.firefox.com/success.txt",
             );
             return Err(err);
-        }
-
-        Ok(())
-    }
-
-    async fn check_request_udp(&self) -> io::Result<()> {
-        // TransactionID: 0x1234
-        // Flags: 0x0100 RD
-        // Questions: 0x0001
-        // Answer RRs: 0x0000
-        // Authority RRs: 0x0000
-        // Additional RRs: 0x0000
-        // Queries
-        //    - QNAME: \x07 firefox \x03 com \x00
-        //    - QTYPE: 0x0001 A
-        //    - QCLASS: 0x0001 IN
-        static DNS_QUERY: &[u8] =
-            b"\x12\x34\x01\x00\x00\x01\x00\x00\x00\x00\x00\x00\x07firefox\x03com\x00\x00\x01\x00\x01";
-
-        let addr = Address::SocketAddress(SocketAddr::new(Ipv4Addr::new(8, 8, 8, 8).into(), 53));
-        let conf = self.server.config();
-
-        let client = shadowsocks::ProxySocket::connect(conf, &self.resolver).await?;
-        let mut control = UdpSocketControlData::default();
-        control.client_session_id = rand::random::<u64>();
-        control.packet_id = 1;
-        client.send(&addr, DNS_QUERY, &control).await?;
-
-        // 128 bytes is big enough for this workload, actually only 77 byte received.
-        // and this will help reduce memory from 60M to 14M.
-        let mut buffer = [0u8; 128];
-        let (n, ..) = client.recv(&mut buffer).await?;
-
-        let answer = &buffer[..n];
-        // DNS packet must have at least 6 * 2 bytes
-        if answer.len() < 12 || &answer[0..2] != b"\x12\x34" {
-            use std::io::{Error, ErrorKind};
-
-            debug!(
-                message = "unexpected response from 8.8.8.8:53",
-                resp = ?ByteStr::new(answer)
-            );
-
-            return Err(Error::new(
-                ErrorKind::InvalidData,
-                "unexpected response from 8.8.8.8:53",
-            ));
         }
 
         Ok(())

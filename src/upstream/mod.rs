@@ -183,7 +183,7 @@ impl Upstream {
 
         // update servers periodically
         {
-            let mut peers = peers.clone();
+            let peers = peers.clone();
             let interval = config.provider.interval;
             let timeout = check.timeout;
 
