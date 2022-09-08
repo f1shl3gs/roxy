@@ -4,14 +4,14 @@ use std::net::SocketAddr;
 
 use futures_util::future::join_all;
 use resolver::Resolver;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use shadowsocks::{Address, ProxyStream};
 use tokio::net::TcpListener;
 
 use super::sniffing::destination_addr;
 use crate::Upstream;
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize)]
 pub struct Config {
     listen: Vec<SocketAddr>,
 }

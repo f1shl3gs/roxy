@@ -2,7 +2,7 @@ use std::fmt::Formatter;
 use std::net::SocketAddr;
 use std::str::FromStr;
 
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde::{Deserialize, Deserializer, Serializer};
 use tracing::Level;
 
 use crate::relay::thp;
@@ -12,7 +12,7 @@ const fn default_timestamp() -> bool {
     true
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Log {
     #[serde(
@@ -34,7 +34,7 @@ impl Default for Log {
     }
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize)]
 pub struct Config {
     /// Worker threads for tokio runtime, if it is not set,
     /// use num_cpu::get()
@@ -71,7 +71,7 @@ impl Config {
     pub fn load() -> Result<Self, Error> {
         let content = match std::env::var("ROXY_CONFIG") {
             Ok(path) => std::fs::read(path),
-            _ => std::fs::read("config.yaml")
+            _ => std::fs::read("config.yaml"),
         }?;
 
         let cfg = serde_yaml::from_slice::<Config>(content.as_slice())?;

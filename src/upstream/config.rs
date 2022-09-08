@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use crate::serde::duration;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
 /// Interval between each check
 pub const DEFAULT_CHECK_INTERVAL: Duration = Duration::from_secs(10);
@@ -16,7 +16,7 @@ const fn default_check_interval() -> Duration {
     DEFAULT_CHECK_INTERVAL
 }
 
-#[derive(Clone, Deserialize, Serialize, Default)]
+#[derive(Clone, Deserialize, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum LoadBalanceType {
     #[default]
@@ -24,7 +24,7 @@ pub enum LoadBalanceType {
     Etld,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize)]
 pub struct CheckConfig {
     #[serde(with = "duration", default = "default_check_timeout")]
     pub timeout: Duration,
@@ -32,7 +32,7 @@ pub struct CheckConfig {
     pub interval: Duration,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize)]
 pub struct ProviderConfig {
     pub endpoint: String,
 
@@ -40,7 +40,7 @@ pub struct ProviderConfig {
     pub interval: Duration,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize)]
 pub struct Config {
     #[serde(default)]
     pub load_balance: LoadBalanceType,
