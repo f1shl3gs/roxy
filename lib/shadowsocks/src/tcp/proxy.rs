@@ -383,6 +383,7 @@ mod tests {
     }
 
     impl AsyncWrite for Mock {
+        #[allow(clippy::print_stdout)]
         fn poll_write(
             self: Pin<&mut Self>,
             _cx: &mut Context<'_>,

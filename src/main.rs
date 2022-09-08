@@ -1,5 +1,9 @@
 mod signals;
 
+#[cfg(feature = "scudo")]
+#[global_allocator]
+static SCUDO_ALLOCATOR: scudo::GlobalScudoAllocator = scudo::GlobalScudoAllocator;
+
 use std::process::exit;
 
 use futures_util::stream::FuturesUnordered;
@@ -12,9 +16,10 @@ use roxy::{controller, dns, thp, trace_init, Config, Upstream};
 fn main() {
     let conf = match Config::load() {
         Ok(conf) => conf,
+
+        #[allow(clippy::print_stderr)]
         Err(err) => {
             eprintln!("load config failed, {:?}", err);
-
             exit(1);
         }
     };
@@ -31,7 +36,7 @@ fn main() {
         .expect("build tokio runtime failed");
 
     runtime.block_on(async move {
-        info!(message = "starting services", worker = conf.worker());
+        info!(message = "starting", worker = conf.worker());
 
         let mut tasks = FuturesUnordered::new();
 

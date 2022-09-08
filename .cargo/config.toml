@@ -1,6 +1,7 @@
 [target.'cfg(all())']
 rustflags = [
     "-Dclippy::print_stdout",
+    "-Dclippy::print_stderr",
     "-Dclippy::dbg_macro",
 ]
 

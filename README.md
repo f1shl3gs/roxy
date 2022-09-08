@@ -18,7 +18,7 @@ examples/config.yaml
 Note: `Bloom Filter` is used to save memory, it works fine at most time, but 
 `False Positives` is still there.
 
-Rule is used for handing dns request, it can works like blacklist and whitelist.
+Rule is used for handing dns request, it works like blacklist and whitelist.
 the Syntax looks like
 ```text
 bar.com     # exact match
@@ -34,6 +34,9 @@ This component will read the first 1024 bytes of the TCP connection, and parse i
 find out destination domain.
 1. HTTP: start with `GET`, `POST` and other http method
 2. HTTPS/TLS: start with 0x22 (it's not printable), See: https://www.rfc-editor.org/rfc/rfc5246#section-6.2.1
+
+## Allocators
+- `Scudo` allocator can reduce some cpu usage, but memory usage is increased(increase from 4M to 9M, aarch64-unknown-linux-musl)  
 
 ## TODO:
 1. Adaptive health check: The dead node is unlikely became alive again in a short time, 

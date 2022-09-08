@@ -47,6 +47,10 @@ serde_yaml = { version = "0.9.4" }
 shadowsocks = { path = "lib/shadowsocks" }
 thiserror = { version = "1.0.34" }
 
+# Allocator
+# scudo/static must be used for aarch64-unknown-linux-musl
+scudo = { git = "https://github.com/f1shl3gs/rust-scudo", optional = true, features = ["static"] }
+
 # Log
 resolver = { path = "lib/resolver" }
 tracing = { version = "0.1.36", default-features = false }
