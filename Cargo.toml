@@ -27,7 +27,6 @@ members = [
     "lib/cron",
     "lib/resolver",
     "lib/shadowsocks",
-    "lib/publicsuffix",
 ]
 
 [dependencies]
@@ -40,7 +39,7 @@ memchr = { version = "2.5.0" }
 num_cpus = { version = "1.13.1" }
 parking_lot = { version = "0.12.1" }
 pin-project-lite = { version = "0.2.9" }
-publicsuffix = { path = "lib/publicsuffix" }
+publicsuffix = { git = "https://github.com/f1shl3gs/publicsuffix.git" }
 rand = { version = "0.8.5", default-features = false }
 serde = { version = "1.0.142", features = ["derive"] }
 serde_json = { version = "1.0.85", optional = true }
