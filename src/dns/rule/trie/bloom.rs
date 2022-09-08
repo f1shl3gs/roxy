@@ -61,16 +61,6 @@ mod tests {
     use std::str::FromStr;
 
     #[test]
-    fn nb() {
-        let tests = [0.01, 0.001, 0.0001, 0.00001];
-
-        for rate in tests {
-            let n = needed_bits(rate, 50000);
-            println!("{}", n);
-        }
-    }
-
-    #[test]
     fn insert_and_lookup() {
         let mut trie = Trie::new();
 

@@ -89,7 +89,6 @@ mod tests {
             let elapsed = start.elapsed().as_secs_f64();
 
             let (parts, body) = resp.into_parts();
-            println!("{} {}", parts.status, elapsed);
             assert!(parts.status.is_success());
         }
     }
