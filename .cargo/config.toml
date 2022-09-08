@@ -1,0 +1,8 @@
+[target.'cfg(all())']
+rustflags = [
+    "-Dclippy::print_stdout",
+    "-Dclippy::dbg_macro",
+]
+
+[target.aarch64-unknown-linux-musl]
+rustflags = ["-L", "native=/lib/native-libs"]
