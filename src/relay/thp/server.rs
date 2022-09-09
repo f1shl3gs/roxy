@@ -18,13 +18,13 @@ pub struct Config {
 
 pub async fn serve(config: Config, upstream: Upstream, resolver: Resolver) -> io::Result<()> {
     let mut tasks = Vec::with_capacity(config.listen.len());
+    info!(
+        message = "start transparent http proxy server",
+        listen = ?config.listen,
+    );
 
     for addr in config.listen {
         let listener = TcpListener::bind(addr).await?;
-        info!(
-            message = "start transparent http proxy server",
-            listen = ?addr,
-        );
 
         let balancer = upstream.clone();
         let resolver = resolver.clone();
