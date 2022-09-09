@@ -1,6 +1,14 @@
 FROM alpine:3.16.2
 
-RUN apk add --no-cache curl wget ca-certificates tzdata vim
-COPY run.sh /run.sh
+ARG SSH_PUB_KEY
 
-ENTRYPOINT ["/bin/sh", "/run.sh"]
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
+
+RUN apk add --no-cache curl wget ca-certificates tzdata vim openssh-server \
+    && mkdir -p /root/.ssh \
+    && chmod 0700 /root/.ssh \
+    && echo "$SSH_PUB_KEY" > /root/.ssh/authorized_keys \
+    && ssh-keygen -A \
+    && echo -e "PasswordAuthentication no" >> /etc/ssh/sshd_config
+
+ENTRYPOINT ["/usr/sbin/sshd", "-D"]
