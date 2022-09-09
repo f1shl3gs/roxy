@@ -1,7 +1,9 @@
 use std::sync::Arc;
+use std::time::Duration;
 
 use parking_lot::RwLock;
 use resolver::Resolver;
+use tokio::time;
 use trust_dns_proto::rr::Name;
 
 use crate::dns::{
@@ -16,7 +18,11 @@ pub struct Reject {
 
 impl Reject {
     pub async fn new(config: RejectConfig, resolver: Resolver) -> Result<Self, Error> {
-        let (trie, total) = rule::load(&config.endpoint, resolver.clone()).await?;
+        let (trie, total) = time::timeout(
+            Duration::from_secs(60),
+            rule::load(&config.endpoint, resolver.clone()),
+        )
+        .await??;
 
         info!(message = "load reject rules success", total, reload = ?config.interval);
 

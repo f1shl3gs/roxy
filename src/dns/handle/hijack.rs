@@ -1,8 +1,10 @@
 use std::net::IpAddr;
 use std::sync::Arc;
+use std::time::Duration;
 
 use parking_lot::RwLock;
 use resolver::Resolver;
+use tokio::time;
 use trust_dns_proto::rr::Name;
 
 use crate::dns::config::HijackConfig;
@@ -15,7 +17,11 @@ pub struct Hijack {
 
 impl Hijack {
     pub async fn new(config: HijackConfig, resolver: Resolver) -> Result<Self, RuleError> {
-        let (trie, total) = rule::load(&config.endpoint, resolver.clone()).await?;
+        let (trie, total) = time::timeout(
+            Duration::from_secs(60),
+            rule::load(&config.endpoint, resolver.clone()),
+        )
+        .await??;
 
         info!(message = "load hijack rules success", total);
 

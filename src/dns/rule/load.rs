@@ -6,6 +6,7 @@ use hyper::http::uri::InvalidUri;
 use hyper::{StatusCode, Uri};
 use resolver::Resolver;
 use tokio::io::AsyncBufReadExt;
+use tokio::time::error::Elapsed;
 use tokio_util::io::StreamReader;
 
 use super::Trie;
@@ -21,6 +22,8 @@ pub enum Error {
     Io(#[from] std::io::Error),
     #[error(transparent)]
     InvalidUri(#[from] InvalidUri),
+    #[error(transparent)]
+    Timeout(#[from] Elapsed),
 }
 
 /// Validate domain
