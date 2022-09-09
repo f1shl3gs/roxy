@@ -3,6 +3,7 @@ use std::io;
 use std::net::{AddrParseError, SocketAddr};
 use std::sync::Arc;
 
+use hyper::header::CONTENT_TYPE;
 use hyper::service::{make_service_fn, service_fn};
 use hyper::{Body, Method, Request, Response, StatusCode};
 use serde::Deserialize;
@@ -18,7 +19,6 @@ pub struct Config {
     listen: String,
 }
 
-#[derive(Clone)]
 struct State {
     upstream: Upstream,
 }
@@ -62,10 +62,30 @@ impl Server {
 
         match (req.method(), path) {
             (&Method::GET, "/stats") => match stats::ProcStat::read() {
-                Ok(stats) => Ok(stats.into_resp()),
+                Ok(stat) => Ok(stat.into_resp()),
                 Err(err) => {
                     error!(message = "read proc stats failed", ?err);
 
+                    Ok(err_resp(StatusCode::INTERNAL_SERVER_ERROR, err))
+                }
+            },
+            (&Method::GET, "/metrics") => match stats::ProcStat::read() {
+                Ok(stat) => {
+                    let s = format!(
+                        "process_cpu_seconds_total {}\n\
+                        process_process_resident_memory_bytes {}\n\
+                        process_open_fds {}\n\
+                        process_threads {}\n",
+                        stat.cpu_seconds, stat.rss, stat.open_fds, stat.threads
+                    );
+                    Ok(Response::builder()
+                        .status(StatusCode::OK)
+                        .header(CONTENT_TYPE, "text/plain")
+                        .body(Body::from(s))
+                        .unwrap())
+                }
+                Err(err) => {
+                    warn!(message = "read proc stats failed", ?err);
                     Ok(err_resp(StatusCode::INTERNAL_SERVER_ERROR, err))
                 }
             },
