@@ -2,7 +2,7 @@ use std::fmt::Formatter;
 use std::net::SocketAddr;
 use std::str::FromStr;
 
-use serde::{Deserialize, Deserializer, Serializer};
+use serde::{Deserialize, Deserializer};
 use tracing::Level;
 
 use crate::relay::thp;
@@ -15,10 +15,7 @@ const fn default_timestamp() -> bool {
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Log {
-    #[serde(
-        deserialize_with = "deserialize_log_level",
-        serialize_with = "serialize_log_level"
-    )]
+    #[serde(deserialize_with = "deserialize_log_level")]
     pub level: Level,
 
     #[serde(default = "default_timestamp")]
@@ -111,11 +108,4 @@ where
     }
 
     deserializer.deserialize_any(Visitor {})
-}
-
-fn serialize_log_level<S>(l: &Level, s: S) -> Result<S::Ok, S::Error>
-where
-    S: Serializer,
-{
-    s.serialize_str(l.as_str())
 }
