@@ -1,7 +1,8 @@
-use super::aead::{Aes128Gcm, Aes256Gcm};
-use crate::crypto::CipherKind;
 use hkdf::Hkdf;
 use sha1::Sha1;
+
+use super::aead::{Aes128Gcm, Aes256Gcm};
+use crate::crypto::CipherKind;
 
 #[allow(clippy::large_enum_variant)]
 enum CipherVariant {
