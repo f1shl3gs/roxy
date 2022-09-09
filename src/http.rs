@@ -84,9 +84,7 @@ mod tests {
 
         for uri in uris {
             let uri = Uri::from_static(uri);
-            let start = Instant::now();
             let resp = cli.get(uri).await.unwrap();
-            let elapsed = start.elapsed().as_secs_f64();
 
             let (parts, body) = resp.into_parts();
             assert!(parts.status.is_success());
