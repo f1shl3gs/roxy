@@ -53,8 +53,9 @@ use std::rc::Rc;
 use std::sync::Arc;
 use std::{io, slice};
 
-use aes::cipher::{BlockDecrypt, BlockEncrypt, KeyInit};
-use aes::{Aes128, Aes256, Block};
+use aes_gcm::aes::cipher::{BlockDecrypt, BlockEncrypt};
+use aes_gcm::aes::{Aes128, Aes256, Block};
+use aes_gcm::KeyInit;
 use byte_string::ByteStr;
 use bytes::{Buf, BufMut, Bytes, BytesMut};
 use lru_cache::LruCache;

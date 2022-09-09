@@ -44,14 +44,14 @@
 //! +--------------+---------------+--------------+------------+
 //! ```
 
+use aes_gcm::aes::cipher::BlockEncrypt;
+use aes_gcm::aes::{Aes128, Aes256, Block};
+use aes_gcm::KeyInit;
 use std::io::{Cursor, ErrorKind, Read};
 use std::pin::Pin;
 use std::task::{Context, Poll};
 use std::{io, slice, task};
 
-use aes::cipher::{BlockEncrypt, KeyInit};
-use aes::Block;
-use aes::{Aes128, Aes256};
 use byte_string::ByteStr;
 use bytes::{Buf, BufMut, Bytes, BytesMut};
 use futures::ready;

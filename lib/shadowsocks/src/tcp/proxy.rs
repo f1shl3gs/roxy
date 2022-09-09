@@ -344,11 +344,7 @@ impl AsyncWrite for ProxyStream {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::option::ConnectOpts;
-    use crate::tcp::utils::{copy_from_encrypted, copy_to_encrypted};
-    use crate::ServerConfig;
     use bytes::{Buf, Bytes};
-    use futures::future::Either;
     use std::task::Poll::Pending;
 
     struct Mock {

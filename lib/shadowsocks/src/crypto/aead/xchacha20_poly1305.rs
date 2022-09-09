@@ -1,5 +1,5 @@
-use aes::cipher::generic_array::GenericArray;
-use aes::cipher::KeyInit;
+use aes_gcm::aead::generic_array::GenericArray;
+use aes_gcm::KeyInit;
 pub use chacha20poly1305::XChaCha20Poly1305 as CryptoXChaCha20Poly1305;
 use chacha20poly1305::{aead::AeadInPlace, Tag, XNonce};
 
