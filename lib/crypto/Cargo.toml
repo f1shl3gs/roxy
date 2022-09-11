@@ -1,0 +1,10 @@
+[package]
+name = "crypto"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+cfg-if = { version = "1.0.0" }
+
+[dev-dependencies]
+hex = { version = "0.4.3" }

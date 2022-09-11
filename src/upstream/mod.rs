@@ -37,10 +37,6 @@ impl Peers {
         }
     }
 
-    fn servers(&self) -> Vec<Arc<Server>> {
-        self.servers.clone()
-    }
-
     fn best(&self) -> Arc<Server> {
         let best = &self.servers[self.best.load(Ordering::Relaxed)];
         if best.alive() {
@@ -85,15 +81,6 @@ impl Peers {
         warn!("no alive proxy, return the first one");
 
         self.servers[0].clone()
-    }
-
-    async fn check_all(self: Arc<Self>, interval: Duration, timeout: Duration, resolver: Resolver) {
-        loop {
-            time::sleep(interval).await;
-
-            self.check_once(timeout, false, resolver.clone()).await;
-            trace!(message = "finished initializing server scores");
-        }
     }
 
     async fn check_once(&self, timeout: Duration, first_run: bool, resolver: Resolver) {

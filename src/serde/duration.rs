@@ -18,10 +18,6 @@ pub fn deserialize<'de, D: Deserializer<'de>>(deserializer: D) -> Result<Duratio
     parse_duration(&s).map_err(serde::de::Error::custom)
 }
 
-pub fn serialize<S: Serializer>(d: &Duration, s: S) -> Result<S::Ok, S::Error> {
-    s.serialize_str(&duration(d))
-}
-
 #[derive(Eq, PartialEq, Debug, Copy, Clone)]
 pub enum ParseError {
     BadInteger,

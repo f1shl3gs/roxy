@@ -2,7 +2,7 @@ pub mod aead;
 mod cipher;
 mod kind;
 pub mod utils;
-pub mod v2;
+// pub mod v2;
 
 use std::fmt::{Display, Formatter};
 use std::str::FromStr;

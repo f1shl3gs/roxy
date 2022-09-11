@@ -5,7 +5,8 @@ edition = "2021"
 
 [profile.release]
 strip = true
-lto = true
+lto = "fat"
+codegen-units = 1
 
 [features]
 default = [
@@ -24,9 +25,11 @@ set-trie = []
 
 [workspace]
 members = [
+    "lib/crypto",
     "lib/cron",
     "lib/resolver",
     "lib/shadowsocks",
+    "tools/aes-bench",
 ]
 
 [dependencies]

@@ -48,7 +48,6 @@
 //! ```
 
 mod aead;
-mod aead2022;
 mod crypto;
 mod proxy_socket;
 

@@ -113,7 +113,7 @@ where
 {
     let buf_size = match kind.category() {
         CipherCategory::Aead => super::aead::MAX_PACKET_SIZE + kind.tag_len(),
-        CipherCategory::Aead2022 => super::aead2022::MAX_PACKET_SIZE + kind.tag_len(),
+        CipherCategory::Aead2022 => todo!(),
     };
 
     Copy {
@@ -135,7 +135,7 @@ where
 {
     let buf_size = match kind.category() {
         CipherCategory::Aead => super::aead::MAX_PACKET_SIZE,
-        CipherCategory::Aead2022 => super::aead2022::MAX_PACKET_SIZE,
+        CipherCategory::Aead2022 => todo!(),
     };
 
     Copy {
