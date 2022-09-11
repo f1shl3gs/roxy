@@ -1,10 +1,12 @@
 use std::collections::VecDeque;
+use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::Arc;
 use std::time::{Instant, SystemTime};
 
 use parking_lot::Mutex;
 use serde::ser::SerializeStruct;
 use serde::{Serialize, Serializer};
-use shadowsocks::ServerConfig;
+use shadowsocks::{FlowStat, ServerConfig};
 
 use crate::DateTime;
 
@@ -37,6 +39,7 @@ impl Serialize for Latency {
 
 pub struct Server {
     config: ServerConfig,
+    flow: Arc<FlowStat>,
 
     latencies: Mutex<VecDeque<Latency>>,
 }
@@ -51,9 +54,14 @@ impl Server {
         self.config.remarks()
     }
 
+    pub fn flow(&self) -> Arc<FlowStat> {
+        self.flow.clone()
+    }
+
     pub fn new(config: ServerConfig) -> Self {
         Self {
             config,
+            flow: Arc::new(FlowStat::default()),
             latencies: Mutex::new(VecDeque::with_capacity(MAX_HISTORY)),
         }
     }
@@ -86,10 +94,13 @@ impl Server {
     pub fn stat(&self) -> Stat {
         let config = &self.config;
         let latencies = { self.latencies.lock().clone() };
+        let (recv, sent) = self.flow.load();
 
         Stat {
             remarks: config.remarks().cloned(),
             address: config.addr().to_string(),
+            recv,
+            sent,
             latencies,
         }
     }
@@ -104,5 +115,7 @@ impl Server {
 pub struct Stat {
     remarks: Option<String>,
     address: String,
+    recv: usize,
+    sent: usize,
     latencies: VecDeque<Latency>,
 }

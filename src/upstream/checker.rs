@@ -4,8 +4,9 @@ use std::time::Duration;
 
 use byte_string::ByteStr;
 use resolver::Resolver;
-use shadowsocks::{Address, ConnectOpts, ProxyStream};
+use shadowsocks::{Address, ConnectOpts, MonProxyStream, ProxyStream};
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
+use tokio::net::TcpStream;
 use tokio::time;
 use tokio::time::Instant;
 
@@ -49,10 +50,12 @@ impl Checker {
         static GET_BODY: &[u8] = b"GET /success.txt HTTP/1.1\r\nHost: detectportal.firefox.com\r\nConnection: close\r\nAccept: */*\r\n\r\n";
 
         let addr = Address::DomainNameAddress("detectportal.firefox.com".to_owned(), 80);
+        let flow_stat = self.server.flow();
         let mut stream = ProxyStream::connect(
             self.server.config(),
             addr,
             &self.resolver,
+            flow_stat,
             &self.connect_opts,
         )
         .await?;

@@ -5,7 +5,7 @@ use std::net::SocketAddr;
 use futures_util::future::join_all;
 use resolver::Resolver;
 use serde::Deserialize;
-use shadowsocks::{Address, ProxyStream};
+use shadowsocks::{Address, MonProxyStream, ProxyStream};
 use tokio::net::TcpListener;
 
 use super::sniffing::destination_addr;
@@ -51,7 +51,7 @@ pub async fn serve(config: Config, upstream: Upstream, resolver: Resolver) -> io
 
                         debug!(message = "proxy connection", ?src, ?target, relay = ?server.remarks());
 
-                        match ProxyStream::connect(server.config(), target, &resolver, &Default::default()).await {
+                        match ProxyStream::connect(server.config(), target, &resolver, server.flow(), &Default::default()).await {
                             Ok(proxy) => {
                                 if let Err(err) = proxy.proxy(local).await {
                                     warn!(message = "proxy error", ?err, ?src, relay = ?server.remarks());

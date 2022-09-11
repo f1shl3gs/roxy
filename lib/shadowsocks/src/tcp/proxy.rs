@@ -2,6 +2,7 @@ use std::io::ErrorKind;
 use std::net::{IpAddr, SocketAddr};
 use std::os::unix::io::{AsRawFd, FromRawFd, IntoRawFd};
 use std::pin::Pin;
+use std::sync::Arc;
 use std::task::{Context, Poll};
 use std::{io, mem};
 
@@ -17,10 +18,11 @@ use tracing::error;
 
 use super::crypto::CryptoStream;
 use crate::crypto::CipherKind;
+use crate::flow::MonProxyStream;
 use crate::option::ConnectOpts;
 use crate::sys::net::set_bindtodevice;
 use crate::tcp::utils::{copy_from_encrypted, copy_to_encrypted};
-use crate::{get_aead_2022_padding_size, Address, ServerConfig};
+use crate::{get_aead_2022_padding_size, Address, FlowStat, ServerConfig};
 
 enum WriteState {
     Connect(Address),
@@ -37,7 +39,7 @@ enum ReadState {
 pin_project! {
     pub struct ProxyStream {
         #[pin]
-        stream: CryptoStream,
+        stream: CryptoStream<MonProxyStream<TcpStream>>,
 
         read_state: ReadState,
         write_state: WriteState,
@@ -50,6 +52,7 @@ impl ProxyStream {
         conf: &ServerConfig,
         target_addr: Address,
         resolver: &Resolver,
+        flow_stat: Arc<FlowStat>,
         opts: &ConnectOpts,
     ) -> io::Result<Self> {
         let stream = match conf.addr() {
@@ -60,14 +63,18 @@ impl ProxyStream {
             }
         };
 
-        let stream = CryptoStream::from_stream(stream, conf.kind(), conf.key());
+        let stream = CryptoStream::from_stream(
+            MonProxyStream::from_stream(stream, flow_stat),
+            conf.kind(),
+            conf.key(),
+        );
         let read_state = if conf.kind().is_aead2022() {
             ReadState::CheckRequestNonce
         } else {
             ReadState::Established
         };
 
-        Ok(Self {
+        Ok(ProxyStream {
             stream,
             read_state,
             write_state: WriteState::Connect(target_addr),

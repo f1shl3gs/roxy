@@ -4,8 +4,7 @@ use std::{io, task};
 
 use bytes::Bytes;
 use futures::ready;
-use tokio::io::{AsyncWrite, ReadBuf};
-use tokio::net::TcpStream;
+use tokio::io::{AsyncRead, AsyncWrite, ReadBuf};
 
 use crate::crypto::utils::generate_nonce;
 use crate::crypto::{CipherCategory, CipherKind};
@@ -62,12 +61,16 @@ impl DecryptedReader {
         }
     }
 
-    pub fn poll_read_decrypted(
+    /// Attempt to read decrypted data from `stream`
+    pub fn poll_read_decrypted<S>(
         &mut self,
         cx: &mut Context<'_>,
-        stream: &mut TcpStream,
+        stream: &mut S,
         buf: &mut ReadBuf<'_>,
-    ) -> Poll<Result<(), ProtocolError>> {
+    ) -> Poll<Result<(), ProtocolError>>
+    where
+        S: AsyncRead + AsyncWrite + Unpin,
+    {
         match *self {
             DecryptedReader::Aead(ref mut reader) => reader
                 .poll_read_decrypted(cx, stream, buf)
@@ -135,16 +138,16 @@ impl EncryptedWriter {
 }
 
 /// A bidirectional stream for read/write encrypted data in shadowsocks' tunnel
-pub struct CryptoStream {
-    stream: TcpStream,
+pub struct CryptoStream<S> {
+    stream: S,
     dec: DecryptedReader,
     enc: EncryptedWriter,
     kind: CipherKind,
     handshaked: bool,
 }
 
-impl CryptoStream {
-    pub fn from_stream(stream: TcpStream, kind: CipherKind, key: &[u8]) -> CryptoStream {
+impl<S> CryptoStream<S> {
+    pub fn from_stream(stream: S, kind: CipherKind, key: &[u8]) -> CryptoStream<S> {
         static EMPTY_IDENTITY: [Bytes; 0] = [];
 
         // No matter the cipher is aead or aead2022
@@ -199,9 +202,12 @@ impl CryptoStream {
 
     pub fn poll_read_decrypted(
         mut self: Pin<&mut Self>,
-        cx: &mut task::Context<'_>,
+        cx: &mut Context<'_>,
         buf: &mut ReadBuf<'_>,
-    ) -> Poll<Result<(), ProtocolError>> {
+    ) -> Poll<Result<(), ProtocolError>>
+    where
+        S: AsyncRead + AsyncWrite + Unpin,
+    {
         let CryptoStream {
             ref mut dec,
             ref mut enc,
@@ -223,10 +229,16 @@ impl CryptoStream {
 
         Ok(()).into()
     }
+}
 
+impl<S> CryptoStream<S>
+where
+    S: AsyncRead + AsyncWrite + Unpin,
+{
+    #[inline]
     pub fn poll_write_encrypted(
         mut self: Pin<&mut Self>,
-        cx: &mut task::Context<'_>,
+        cx: &mut Context<'_>,
         buf: &[u8],
     ) -> Poll<Result<usize, ProtocolError>> {
         let CryptoStream {

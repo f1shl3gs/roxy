@@ -43,7 +43,6 @@ use bytes::{BufMut, Bytes, BytesMut};
 use futures::{ready, task};
 use tokio::io::ReadBuf;
 use tokio::io::{AsyncRead, AsyncWrite};
-use tokio::net::TcpStream;
 
 use crate::crypto::{Cipher, CipherKind};
 
@@ -109,12 +108,15 @@ impl DecryptedReader {
         self.salt.as_deref()
     }
 
-    pub fn poll_read_decrypted(
+    pub fn poll_read_decrypted<S>(
         &mut self,
         cx: &mut task::Context<'_>,
-        stream: &mut TcpStream,
+        stream: &mut S,
         buf: &mut ReadBuf<'_>,
-    ) -> Poll<Result<(), ProtocolError>> {
+    ) -> Poll<Result<(), ProtocolError>>
+    where
+        S: AsyncRead + AsyncWrite + Unpin,
+    {
         loop {
             match self.state {
                 DecryptReadState::WaitSalt { ref key } => {
@@ -162,12 +164,15 @@ impl DecryptedReader {
         }
     }
 
-    fn poll_read_salt(
+    fn poll_read_salt<S>(
         &mut self,
         cx: &mut task::Context<'_>,
-        stream: &mut TcpStream,
+        stream: &mut S,
         key: &[u8],
-    ) -> Poll<Result<(), ProtocolError>> {
+    ) -> Poll<Result<(), ProtocolError>>
+    where
+        S: AsyncRead + Unpin + ?Sized,
+    {
         let salt_len = self.kind.salt_len();
 
         let n = ready!(self.pool_read_exact(cx, stream, salt_len))?;
@@ -187,11 +192,14 @@ impl DecryptedReader {
         Ok(()).into()
     }
 
-    fn poll_read_length(
+    fn poll_read_length<S>(
         &mut self,
         cx: &mut task::Context<'_>,
-        stream: &mut TcpStream,
-    ) -> Poll<Result<Option<usize>, ProtocolError>> {
+        stream: &mut S,
+    ) -> Poll<Result<Option<usize>, ProtocolError>>
+    where
+        S: AsyncRead + Unpin + ?Sized,
+    {
         let length_len = 2 + self.kind.tag_len();
 
         let n = ready!(self.pool_read_exact(cx, stream, length_len))?;
@@ -206,12 +214,15 @@ impl DecryptedReader {
         Ok(Some(length)).into()
     }
 
-    fn poll_read_data(
+    fn poll_read_data<S>(
         &mut self,
         cx: &mut task::Context<'_>,
-        stream: &mut TcpStream,
+        stream: &mut S,
         size: usize,
-    ) -> Poll<Result<(), ProtocolError>> {
+    ) -> Poll<Result<(), ProtocolError>>
+    where
+        S: AsyncRead + Unpin + ?Sized,
+    {
         let data_len = size + self.kind.tag_len();
 
         let n = ready!(self.pool_read_exact(cx, stream, data_len))?;
@@ -239,12 +250,15 @@ impl DecryptedReader {
         Ok(()).into()
     }
 
-    fn pool_read_exact(
+    fn pool_read_exact<S>(
         &mut self,
         cx: &mut task::Context<'_>,
-        stream: &mut TcpStream,
+        stream: &mut S,
         size: usize,
-    ) -> Poll<io::Result<usize>> {
+    ) -> Poll<io::Result<usize>>
+    where
+        S: AsyncRead + Unpin + ?Sized,
+    {
         assert!(size != 0);
 
         while self.buffer.len() < size {
