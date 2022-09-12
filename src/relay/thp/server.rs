@@ -5,7 +5,7 @@ use std::net::SocketAddr;
 use futures_util::future::join_all;
 use resolver::Resolver;
 use serde::Deserialize;
-use shadowsocks::{Address, MonProxyStream, ProxyStream};
+use shadowsocks::{Address, ProxyStream};
 use tokio::net::TcpListener;
 
 use super::sniffing::destination_addr;

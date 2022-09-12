@@ -4,9 +4,8 @@ use std::time::Duration;
 
 use byte_string::ByteStr;
 use resolver::Resolver;
-use shadowsocks::{Address, ConnectOpts, MonProxyStream, ProxyStream};
+use shadowsocks::{Address, ConnectOpts, ProxyStream};
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
-use tokio::net::TcpStream;
 use tokio::time;
 use tokio::time::Instant;
 
