@@ -33,7 +33,7 @@ impl Handler {
         upstream: UpstreamConfig,
         resolver: Resolver,
     ) -> Result<Self, Error> {
-        let cache = cache.map(|c| Cache::new(c.size, c.ttl));
+        let cache = cache.map(|c| Cache::new(c.size));
 
         let reject = match reject {
             Some(rc) => {

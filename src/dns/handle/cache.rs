@@ -1,3 +1,4 @@
+use std::cmp;
 use std::ops::Add;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
@@ -9,6 +10,8 @@ use trust_dns_proto::rr::Record;
 
 use crate::dns::Request;
 use crate::dns::Response;
+
+const MAX_RECORD_TTL: u32 = 24 * 60 * 60;
 
 pub struct Entry {
     expire_at: Instant,
@@ -22,14 +25,12 @@ pub struct Entry {
 }
 
 pub struct Cache {
-    ttl: Duration,
     lru: Arc<Mutex<LruCache<Query, Entry>>>,
 }
 
 impl Cache {
-    pub fn new(size: usize, ttl: Duration) -> Self {
+    pub fn new(size: usize) -> Self {
         Self {
-            ttl,
             lru: Arc::new(Mutex::new(LruCache::new(size))),
         }
     }
@@ -72,10 +73,15 @@ impl Cache {
             return;
         }
 
+        let ttl = resp
+            .answers
+            .iter()
+            .fold(MAX_RECORD_TTL, |m, record| cmp::min(m, record.ttl()));
+
         cached.insert(
             query.clone(),
             Entry {
-                expire_at: Instant::now().add(self.ttl),
+                expire_at: Instant::now().add(Duration::from_secs(ttl as u64)),
                 answers: resp.answers.clone(),
                 name_servers: resp.name_servers.clone(),
                 soa: resp.soa.clone(),

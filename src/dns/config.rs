@@ -5,10 +5,9 @@ use std::time::Duration;
 use serde::Deserialize;
 
 #[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct CacheConfig {
     pub size: usize,
-    #[serde(with = "crate::serde::duration")]
-    pub ttl: Duration,
 }
 
 #[derive(Deserialize)]
