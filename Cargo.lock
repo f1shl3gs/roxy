@@ -987,7 +987,6 @@ dependencies = [
 name = "shadowsocks"
 version = "0.1.0"
 dependencies = [
- "base64",
  "blake3",
  "byte_string",
  "bytes",

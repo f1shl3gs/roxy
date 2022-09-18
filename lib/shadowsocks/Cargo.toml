@@ -11,7 +11,6 @@ tokio = { version = "1.21.0", default-features = false, features = ["net", "macr
 trust-dns-resolver = { version = "0.22.0" }
 
 [dependencies]
-base64 = { version = "0.13.0" }
 bytes = { version = "1.2.1" }
 byte_string = { version = "1.0.0" }
 futures = { version = "0.3.24", default-features = false, features = ["async-await"] }

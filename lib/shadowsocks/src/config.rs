@@ -1,8 +1,9 @@
 use std::sync::Arc;
 use std::time::Duration;
 
-use base64::{decode_config, URL_SAFE_NO_PAD};
 use bytes::Bytes;
+use crypto::encoding::base64;
+use crypto::encoding::base64::urlsafe_decode_with_config;
 use percent_encoding::percent_decode_str;
 use tracing::error;
 use url::Url;
@@ -195,7 +196,13 @@ impl ServerConfig {
                 None => return Err(UrlParseError::MissingHost),
             };
 
-            let mut decoded_body = match decode_config(encoded, URL_SAFE_NO_PAD) {
+            let mut decoded_body = match urlsafe_decode_with_config(
+                encoded,
+                base64::Config {
+                    no_padding: true,
+                    allow_trailing_non_zero_bits: false,
+                },
+            ) {
                 Ok(b) => match String::from_utf8(b) {
                     Ok(b) => b,
                     Err(..) => return Err(UrlParseError::InvalidServerAddr),
@@ -243,7 +250,13 @@ impl ServerConfig {
                 (m, p)
             }
             None => {
-                let account = match decode_config(user_info, URL_SAFE_NO_PAD) {
+                let account = match urlsafe_decode_with_config(
+                    user_info,
+                    base64::Config {
+                        no_padding: true,
+                        allow_trailing_non_zero_bits: false,
+                    },
+                ) {
                     Ok(account) => match String::from_utf8(account) {
                         Ok(ac) => ac,
                         Err(..) => return Err(UrlParseError::InvalidAuthInfo),
@@ -308,7 +321,7 @@ where
 
 fn make_derived_key(kind: CipherKind, password: &str, enc_key: &mut [u8]) {
     if kind.is_aead2022() {
-        match decode_config(password, base64::STANDARD) {
+        match base64::decode(password) {
             Ok(v) => {
                 if v.len() != enc_key.len() {
                     panic!(

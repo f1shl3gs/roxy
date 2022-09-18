@@ -3,6 +3,7 @@
 
 mod blockcipher;
 mod blockmode;
+pub mod encoding;
 pub mod hash;
 pub mod kdf;
 mod mac;
