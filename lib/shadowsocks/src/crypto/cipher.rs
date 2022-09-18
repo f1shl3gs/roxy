@@ -1,5 +1,4 @@
-use hkdf::Hkdf;
-use sha1::Sha1;
+use crypto::kdf::HkdfSha1;
 
 use super::aead::{Aes128Gcm, Aes256Gcm};
 use crate::crypto::CipherKind;
@@ -64,9 +63,8 @@ impl Cipher {
 
         let ikm = key;
         let mut okm = [0u8; MAX_KEY_LEN];
-
-        let hk = Hkdf::<Sha1>::new(Some(iv_or_salt), ikm);
-        hk.expand(SUBKEY_INFO, &mut okm).expect("HKDF-SHA1");
+        let hk = HkdfSha1::new(iv_or_salt, ikm);
+        hk.expand(SUBKEY_INFO, &mut okm);
 
         let subkey = &okm[..ikm.len()];
         let cipher = CipherVariant::new(kind, subkey);

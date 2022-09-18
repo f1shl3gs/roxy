@@ -336,11 +336,10 @@ fn make_derived_key(kind: CipherKind, password: &str, enc_key: &mut [u8]) {
 }
 
 pub fn bytes_to_key(password: &[u8], key: &mut [u8]) {
-    use md5::{Digest, Md5};
+    use crypto::hash::Md5;
 
     let key_len = key.len();
-
-    let mut last_digest = None;
+    let mut last_digest: Option<[u8; 16]> = None;
 
     let mut offset = 0usize;
     while offset < key_len {
