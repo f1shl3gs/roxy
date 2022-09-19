@@ -15,7 +15,7 @@ impl FnvHasher {
         let FnvHasher(mut hash) = *self;
 
         for byte in bytes.iter() {
-            hash = hash ^ (*byte as u64);
+            hash ^= *byte as u64;
             hash = hash.wrapping_mul(0x100000001b3);
         }
 

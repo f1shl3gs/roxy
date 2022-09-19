@@ -65,11 +65,8 @@ impl Handler {
 
         // try cache
         if let Some(cache) = &self.cache {
-            match cache.get(req) {
-                Some(resp) => {
-                    return Ok(resp);
-                }
-                _ => {}
+            if let Some(resp) = cache.get(req) {
+                return Ok(resp);
             }
         }
 
