@@ -109,7 +109,7 @@ impl Server {
                             }
                         }
                         Err(err) => {
-                            warn!(message = "handle dns request failed", ?src, ?err);
+                            warn!(message = "handle dns request failed", ?err, ?src);
                         }
                     }
                 }
@@ -184,7 +184,7 @@ impl Server {
                             }
                         }
 
-                        warn!(message = "handle dns request failed", ?err, ?name);
+                        warn!(message = "handle dns request failed", ?err, ?src, ?name);
                     }
                 }
             });
