@@ -59,7 +59,7 @@ impl Hijack {
     pub fn hijacking(&self, name: &Name) -> Option<IpAddr> {
         let trie = self.trie.read();
 
-        if trie.contain(name) {
+        if trie.contains(name) {
             Some(self.hijack)
         } else {
             None

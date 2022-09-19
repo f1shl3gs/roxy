@@ -59,6 +59,6 @@ impl Reject {
     #[inline]
     pub fn deny(&self, name: &Name) -> bool {
         let trie = self.trie.read();
-        trie.contain(name)
+        trie.contains(name)
     }
 }

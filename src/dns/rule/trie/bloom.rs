@@ -52,7 +52,7 @@ impl Trie {
         self.bloom.insert(&hash.current());
     }
 
-    pub fn contain(&self, name: &Name) -> bool {
+    pub fn contains(&self, name: &Name) -> bool {
         let length = name.num_labels() as usize;
         let segments = name.iter().rev();
         let mut hash = FnvHasher::default();
@@ -111,7 +111,7 @@ mod tests {
 
             assert!(name.is_fqdn());
             assert_eq!(
-                trie.contain(&name),
+                trie.contains(&name),
                 want,
                 "input: {}, want: {}",
                 input,
@@ -237,7 +237,7 @@ mod tests {
         let name = Name::from_str("glyph.medium.com.").unwrap();
 
         b.iter(|| {
-            trie.contain(&name);
+            trie.contains(&name);
         })
     }
 
@@ -248,6 +248,6 @@ mod tests {
 
         let name = Name::from_str("glyph.medium.com.").unwrap();
         assert!(name.is_fqdn());
-        assert!(trie.contain(&name))
+        assert!(trie.contains(&name))
     }
 }
