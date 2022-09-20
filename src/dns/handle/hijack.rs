@@ -17,26 +17,32 @@ pub struct Hijack {
 
 impl Hijack {
     pub async fn new(config: HijackConfig, resolver: Resolver) -> Result<Self, RuleError> {
+        let HijackConfig {
+            endpoint,
+            hijack,
+            interval,
+        } = config;
+
         let (trie, total) = time::timeout(
             Duration::from_secs(60),
-            rule::load(&config.endpoint, resolver.clone()),
+            rule::load(&endpoint, resolver.clone()),
         )
         .await??;
 
-        info!(message = "load hijack rules success", total);
+        info!(message = "load hijack rules success", total, reload = ?interval);
 
         let hijacker = Self {
             trie: Arc::new(RwLock::new(trie)),
-            hijack: config.hijack,
+            hijack,
         };
 
-        if let Some(interval) = config.interval {
-            let endpoint = config.endpoint;
+        if let Some(interval) = interval {
+            let endpoint = endpoint;
             let trie = hijacker.trie.clone();
 
             tokio::spawn(async move {
                 loop {
-                    tokio::time::sleep(interval).await;
+                    time::sleep(interval).await;
 
                     match rule::load(&endpoint, resolver.clone()).await {
                         Ok((new_trie, total)) => {

@@ -28,9 +28,14 @@ pub struct Trie {
 }
 
 impl Trie {
+    #[inline]
     pub fn new() -> Self {
+        Self::new_with_size(50000)
+    }
+
+    pub fn new_with_size(size: u32) -> Self {
         Self {
-            bloom: BloomFilter::with_rate(0.0001, 40_000),
+            bloom: BloomFilter::with_rate(0.0001, size),
         }
     }
 

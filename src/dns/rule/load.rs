@@ -2,6 +2,7 @@ use std::io::ErrorKind;
 use std::str::FromStr;
 
 use futures_util::TryStreamExt;
+use hyper::header::CONTENT_LENGTH;
 use hyper::http::uri::InvalidUri;
 use hyper::{StatusCode, Uri};
 use resolver::Resolver;
@@ -39,10 +40,18 @@ pub async fn load(endpoint: &str, resolver: Resolver) -> Result<(Trie, u32), Err
         return Err(Error::UnexpectedStatusCode(parts.status));
     }
 
+    let cap = parts
+        .headers
+        .get(CONTENT_LENGTH)
+        .and_then(|val| val.to_str().ok())
+        .and_then(|s| s.parse::<u32>().ok())
+        .map(|l| l / 15) // 15 is just a result of test case, it should works well.
+        .unwrap_or(50000);
+    let mut trie = Trie::new_with_size(cap);
+
     let mut reader =
         StreamReader::new(body.map_err(|err| std::io::Error::new(ErrorKind::Other, err)));
     let mut buf = String::new();
-    let mut trie = Trie::new();
     let mut total = 0;
 
     loop {

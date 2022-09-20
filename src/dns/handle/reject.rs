@@ -18,31 +18,32 @@ pub struct Reject {
 
 impl Reject {
     pub async fn new(config: RejectConfig, resolver: Resolver) -> Result<Self, Error> {
+        let RejectConfig { endpoint, interval } = config;
+
         let (trie, total) = time::timeout(
             Duration::from_secs(60),
-            rule::load(&config.endpoint, resolver.clone()),
+            rule::load(&endpoint, resolver.clone()),
         )
         .await??;
 
-        info!(message = "load reject rules success", total, reload = ?config.interval);
+        info!(message = "load reject rules success", total, reload = ?interval);
 
         let rejector = Reject {
             trie: Arc::new(RwLock::new(trie)),
         };
 
-        if let Some(interval) = config.interval {
-            let endpoint = config.endpoint;
+        if let Some(interval) = interval {
+            let endpoint = endpoint;
             let trie = rejector.trie.clone();
 
             tokio::spawn(async move {
                 loop {
-                    tokio::time::sleep(interval).await;
+                    time::sleep(interval).await;
 
                     match rule::load(&endpoint, resolver.clone()).await {
                         Ok((new_trie, total)) => {
                             info!(message = "reload reject rules success", total);
 
-                            // trie.write().nodes = new_trie.nodes;
                             trie.write().swap(new_trie)
                         }
                         Err(err) => {
