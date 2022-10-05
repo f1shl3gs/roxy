@@ -104,9 +104,10 @@ impl Server {
 
                             if let Err(err) = stream_handle.send(msg) {
                                 warn!(message = "send response message failed", ?src, ?err);
-
                                 return;
                             }
+
+                            debug!(message = "handle dns request success", ?src, query = ?req.query());
                         }
                         Err(err) => {
                             warn!(message = "handle dns request failed", ?err, ?src);
@@ -134,7 +135,6 @@ impl Server {
             };
 
             let src = msg.addr();
-            debug!("received udp request from: {}", src);
 
             // verify that the src address is safe for response
             if let Err(err) = sanitize_src_address(src) {
@@ -155,8 +155,6 @@ impl Server {
 
             tokio::spawn(async move {
                 let name = req.query().name();
-                debug!(message = "serve dns request", ?name);
-
                 let result = handler.handle(&req).await;
 
                 match result {
@@ -172,6 +170,8 @@ impl Server {
 
                         if let Err(err) = sender.send(msg) {
                             warn!(message = "send dns response failed", ?err, ?src);
+                        } else {
+                            debug!(message = "handle dns request success", ?src, query = ?req.query());
                         }
                     }
 
