@@ -15,7 +15,7 @@ pub enum Error {
 
     Hijack(rule::Error),
 
-    InvalidNameServer(String)
+    InvalidNameServer(String),
 }
 
 impl Display for Error {

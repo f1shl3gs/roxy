@@ -15,9 +15,9 @@ impl Resolver {
         opts.num_concurrent_reqs = 128;
 
         let mut conf = ResolverConfig::new();
-        addrs.into_iter().for_each(|addr| {
-            conf.add_name_server(NameServerConfig::new(addr, Protocol::Udp))
-        });
+        addrs
+            .into_iter()
+            .for_each(|addr| conf.add_name_server(NameServerConfig::new(addr, Protocol::Udp)));
 
         let resolver = TokioAsyncResolver::tokio(conf, opts)?;
 
@@ -30,7 +30,10 @@ impl Resolver {
 
     pub async fn resolve(&self, host: &str, port: u16) -> Result<Vec<SocketAddr>, ResolveError> {
         let lu = self.0.lookup_ip(host).await?;
-        let addrs = lu.into_iter().map(|ip| SocketAddr::new(ip, port)).collect::<Vec<_>>();
+        let addrs = lu
+            .into_iter()
+            .map(|ip| SocketAddr::new(ip, port))
+            .collect::<Vec<_>>();
         Ok(addrs)
     }
 

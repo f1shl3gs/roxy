@@ -46,7 +46,11 @@ impl Handler {
         };
 
         let hijacker = match hijack {
-            Some(hc) => Some(Hijack::new(hc, resolver.clone()).await.map_err(Error::Hijack)?),
+            Some(hc) => Some(
+                Hijack::new(hc, resolver.clone())
+                    .await
+                    .map_err(Error::Hijack)?,
+            ),
             None => None,
         };
 

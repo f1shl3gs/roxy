@@ -55,7 +55,15 @@ pub async fn serve(config: Config, upstream: Upstream, resolver: Resolver) -> io
                             relay = ?server.config().addr()
                         );
 
-                        match ProxyStream::connect(server.config(), target, &resolver, server.flow(), &Default::default()).await {
+                        match ProxyStream::connect(
+                            server.config(),
+                            target,
+                            &resolver,
+                            server.flow(),
+                            &Default::default(),
+                        )
+                        .await
+                        {
                             Ok(proxy) => {
                                 if let Err(err) = proxy.proxy(local).await {
                                     warn!(message = "proxy error",
@@ -68,7 +76,7 @@ pub async fn serve(config: Config, upstream: Upstream, resolver: Resolver) -> io
                                 }
 
                                 return Ok(());
-                            },
+                            }
                             Err(err) => {
                                 warn!(message = "connect proxy failed, try next",
                                     ?err,
@@ -81,7 +89,10 @@ pub async fn serve(config: Config, upstream: Upstream, resolver: Resolver) -> io
                         }
                     }
 
-                    Err(io::Error::new(ErrorKind::NotConnected, "no available proxy"))
+                    Err(io::Error::new(
+                        ErrorKind::NotConnected,
+                        "no available proxy",
+                    ))
                 });
             }
         }));
