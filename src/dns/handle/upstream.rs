@@ -1,9 +1,13 @@
 use std::net::SocketAddr;
 use std::sync::Arc;
+use futures_util::stream::FuturesUnordered;
+use futures_util::StreamExt;
+use trust_dns_proto::rr::{Record, RecordType};
 
 use trust_dns_resolver::config::{NameServerConfig, Protocol, ResolverConfig, ResolverOpts};
 use trust_dns_resolver::error::ResolveError;
 use trust_dns_resolver::TokioAsyncResolver;
+use resolver::Resolver;
 
 use super::{Error, Request, Response};
 
@@ -11,22 +15,74 @@ pub struct Upstream {
     resolver: Arc<TokioAsyncResolver>,
 }
 
+async fn resolve_host(resolver: &Resolver, host: url::Host<&str>, port: u16, protocol: Protocol) -> Result<Vec<NameServerConfig>, Error> {
+    use url::Host;
+
+    let configs = match host {
+        Host::Domain(s) => {
+            resolver.resolve(s, port).await?
+                .into_iter()
+                .map(|addr| NameServerConfig::new(addr, protocol))
+                .collect::<Vec<_>>()
+        },
+        Host::Ipv4(ip) => {
+            vec![NameServerConfig::new(SocketAddr::new(ip.into(), port), protocol)]
+        },
+        Host::Ipv6(ip) => {
+            vec![NameServerConfig::new(SocketAddr::new(ip.into(), port), protocol)]
+        }
+    };
+
+    Ok(configs)
+}
+
+async fn build_name_server_config(resolver: &Resolver, u: &str) -> Result<Vec<NameServerConfig>, Error> {
+    use url::Host;
+
+    let u = url::Url::parse(u)
+        .map_err(|err| {
+            Error::InvalidNameServer(format!("{}, url: {}", err, u))
+        })?;
+    let scheme = u.scheme();
+    let host = u.host().ok_or(Error::InvalidNameServer("no host found".into()))?;
+
+    let configs = match scheme {
+        "udp" | "tcp" => {
+            let protocol = match scheme {
+                "tcp" => Protocol::Tcp,
+                "udp" => Protocol::Udp,
+                _ => unreachable!()
+            };
+
+            let port = u.port().unwrap_or(53);
+            resolve_host(resolver, host, port, protocol).await?
+        },
+        "tls" => {
+            let port = u.port().unwrap_or(853);
+            resolve_host(resolver, host, port, Protocol::Tls).await?
+        },
+        _ => {
+            return Err(format!("invalid name server scheme of {}", u).into())
+        }
+    };
+
+    Ok(configs)
+}
+
 impl Upstream {
-    pub fn new(addrs: Vec<SocketAddr>) -> Result<Self, ResolveError> {
+    pub async fn new(servers: Vec<String>, resolver: &Resolver) -> Result<Self, Error> {
         let mut opts = ResolverOpts::default();
         opts.cache_size = 1024;
         opts.num_concurrent_reqs = 64; // default is 2, 64 should be large enough
 
         let mut conf = ResolverConfig::new();
-        addrs.into_iter().for_each(|addr| {
-            conf.add_name_server(NameServerConfig {
-                socket_addr: addr,
-                protocol: Protocol::Udp,
-                tls_dns_name: None,
-                trust_nx_responses: false,
-                bind_addr: None,
-            })
-        });
+        for svr in servers {
+            build_name_server_config(resolver, &svr).await?
+                .into_iter()
+                .for_each(|nsc| {
+                    conf.add_name_server(nsc)
+                });
+        }
 
         let resolver = TokioAsyncResolver::tokio(conf, opts)?;
 
@@ -50,5 +106,14 @@ impl Upstream {
             vec![],
             None,
         ))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn parse() {
+        let n = url::Url::parse("tls://dns.alidns.com").unwrap();
+        println!("{:?}", n.to_string());
     }
 }

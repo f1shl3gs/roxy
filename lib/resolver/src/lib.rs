@@ -16,13 +16,7 @@ impl Resolver {
 
         let mut conf = ResolverConfig::new();
         addrs.into_iter().for_each(|addr| {
-            conf.add_name_server(NameServerConfig {
-                socket_addr: addr,
-                protocol: Protocol::Udp,
-                tls_dns_name: None,
-                trust_nx_responses: false,
-                bind_addr: None,
-            })
+            conf.add_name_server(NameServerConfig::new(addr, Protocol::Udp))
         });
 
         let resolver = TokioAsyncResolver::tokio(conf, opts)?;
@@ -34,10 +28,10 @@ impl Resolver {
         Self(Arc::new(resolver))
     }
 
-    pub async fn resolve(&self, host: &str, port: u16) -> Result<SocketAddr, ResolveError> {
+    pub async fn resolve(&self, host: &str, port: u16) -> Result<Vec<SocketAddr>, ResolveError> {
         let lu = self.0.lookup_ip(host).await?;
-        let ip = lu.into_iter().next().unwrap();
-        Ok(SocketAddr::new(ip, port))
+        let addrs = lu.into_iter().map(|ip| SocketAddr::new(ip, port)).collect::<Vec<_>>();
+        Ok(addrs)
     }
 
     pub async fn lookup(&self, host: &str, port: u16) -> Result<Vec<SocketAddr>, ResolveError> {

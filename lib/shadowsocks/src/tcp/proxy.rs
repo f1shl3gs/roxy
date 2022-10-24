@@ -58,8 +58,8 @@ impl ProxyStream {
         let stream = match conf.addr() {
             Address::SocketAddress(addr) => connect_server_with_opts(*addr, opts).await?,
             Address::DomainNameAddress(domain, port) => {
-                let addr = resolver.resolve(domain, *port).await?;
-                connect_server_with_opts(addr, opts).await?
+                let addrs = resolver.resolve(domain, *port).await?;
+                connect_server_with_opts(addrs[0], opts).await?
             }
         };
 

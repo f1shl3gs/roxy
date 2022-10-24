@@ -49,19 +49,33 @@ pub async fn serve(config: Config, upstream: Upstream, resolver: Resolver) -> io
                         let server = balancer.pick(&host).await;
                         let target = Address::DomainNameAddress(host.clone(), port);
 
-                        debug!(message = "proxy connection", ?src, ?target, relay = ?server.remarks());
+                        debug!(message = "proxy connection",
+                            ?src,
+                            ?target,
+                            relay = ?server.config().addr()
+                        );
 
                         match ProxyStream::connect(server.config(), target, &resolver, server.flow(), &Default::default()).await {
                             Ok(proxy) => {
                                 if let Err(err) = proxy.proxy(local).await {
-                                    warn!(message = "proxy error", ?err, ?src, relay = ?server.remarks());
+                                    warn!(message = "proxy error",
+                                        ?err,
+                                        ?src,
+                                        relay = ?server.config().addr()
+                                    );
+
                                     server.report_failure();
                                 }
 
                                 return Ok(());
                             },
                             Err(err) => {
-                                warn!(message = "connect proxy failed, try next", ?err, relay = server.remarks());
+                                warn!(message = "connect proxy failed, try next",
+                                    ?err,
+                                    ?src,
+                                    relay = ?server.config().addr()
+                                );
+
                                 server.report_failure()
                             }
                         }

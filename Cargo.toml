@@ -51,6 +51,7 @@ serde_json = { version = "1.0.85", optional = true }
 serde_yaml = { version = "0.9.4" }
 shadowsocks = { path = "lib/shadowsocks" }
 thiserror = { version = "1.0.34" }
+url = { version = "2.3.1", default-featurs = false }
 
 # Allocator
 # scudo/static must be used for aarch64-unknown-linux-musl
@@ -62,7 +63,7 @@ tracing = { version = "0.1.36", default-features = false }
 
 # DNS
 trust-dns-proto = { version = "0.22.0" }
-trust-dns-resolver = { version = "0.22.0", default-features = false, features = ["tokio-runtime"] }
+trust-dns-resolver = { version = "0.22.0", default-features = false, features = ["tokio-runtime", "dns-over-rustls"] }
 bloom = { version = "0.3.2", optional = true }
 
 # HTTP

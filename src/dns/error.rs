@@ -14,6 +14,8 @@ pub enum Error {
     Reject(rule::Error),
 
     Hijack(rule::Error),
+
+    InvalidNameServer(String)
 }
 
 impl Display for Error {
@@ -33,5 +35,17 @@ impl From<ResolveError> for Error {
 impl From<AddrParseError> for Error {
     fn from(err: AddrParseError) -> Self {
         Self::InvalidIpAddress(err)
+    }
+}
+
+impl From<&str> for Error {
+    fn from(s: &str) -> Self {
+        Self::InvalidNameServer(s.to_string())
+    }
+}
+
+impl From<String> for Error {
+    fn from(s: String) -> Self {
+        Self::InvalidNameServer(s)
     }
 }

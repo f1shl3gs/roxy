@@ -5,7 +5,7 @@ use std::time::{Instant, SystemTime};
 use parking_lot::Mutex;
 use serde::ser::SerializeStruct;
 use serde::{Serialize, Serializer};
-use shadowsocks::{FlowStat, ServerConfig};
+use shadowsocks::{Address, FlowStat, ServerConfig};
 
 use crate::DateTime;
 
@@ -49,8 +49,14 @@ impl Server {
         &self.config
     }
 
+    #[inline]
     pub fn remarks(&self) -> Option<&String> {
         self.config.remarks()
+    }
+
+    #[inline]
+    pub fn addr(&self) -> &Address {
+        self.config.addr()
     }
 
     pub fn flow(&self) -> Arc<FlowStat> {

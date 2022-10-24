@@ -12,7 +12,7 @@ pub struct CacheConfig {
 
 #[derive(Deserialize)]
 pub struct UpstreamConfig {
-    pub(crate) nameservers: Vec<SocketAddr>,
+    pub(crate) nameservers: Vec<String>,
 }
 
 #[derive(Deserialize)]
