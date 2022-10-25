@@ -23,7 +23,7 @@ log:
   # Required
   level: info
 
-  # Sometimes timestamp is redundant, for example, running this in container
+  # Sometimes timestamp is redundant, for example, running this in a container
   #
   # Optional
   timestamp: true
@@ -90,7 +90,10 @@ dns:
   # Required
   upstream:
     nameservers:
-      - 114.114.114.114:53
+      # If port is not provided, default value is used.
+      # tcp://1.1.1.1 or udp://1.1.1.1
+      - tls://dot.pub # Tencent DNS over TLS
+      - tls://dns.alidns.com # Aliyun DNS over TLS
 
 # upstream is used to define servers that can be referenced by THP
 #
@@ -111,7 +114,7 @@ upstream:
     # Interval seconds between each check
     #
     # Required
-    interval: 30s
+    interval: 1h
 
     # Timeout for check servers
     # Required
