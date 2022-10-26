@@ -35,8 +35,46 @@ find out destination domain.
 1. HTTP: start with `GET`, `POST` and other http method
 2. HTTPS/TLS: start with 0x22 (it's not printable), See: https://www.rfc-editor.org/rfc/rfc5246#section-6.2.1
 
+## Controller HTTP API
+Roxy's stats
+```shell
+curl -s 10.18.0.4:9000/stats | jq .
+{
+    "open_fds": 20,
+    "max_fds": 500000,
+    "cpu_seconds": 78.95,
+    "threads": 5,
+    "start": 849974.67,
+    "vss": 12779520,
+    "rss": 7864320
+}
+```
+
+Get upstream stats
+```shell
+curl -s 10.18.0.4:9000/upstream | jq .
+[
+    {
+        "remarks": "foo 01",
+        "address": "some.example.com:1234",
+        "recv": 569,
+        "sent": 342,
+        "latencies": [
+            {
+                "timestamp": "2022-10-26T14:10:16.170341Z",
+                "value": 1724
+            },
+            {
+                "timestamp": "2022-10-26T14:14:02.744491Z",
+                "value": 421
+            }
+        ]
+    }
+]
+```
+
 ## Allocators
-- `Scudo` allocator can reduce some cpu usage, but memory usage is increased(increase from 4M to 9M, aarch64-unknown-linux-musl)  
+- `Scudo` allocator can reduce some cpu usage, but memory usage is increased(increase from 4M to 9M on aarch64-unknown-linux-musl)
 
 ## TODO:
 1. Adaptive health check: The dead node is unlikely became alive again in a short time, 
