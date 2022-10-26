@@ -38,6 +38,7 @@ members = [
 base64 = { version = "0.13.0" }
 byteorder = { version = "1.4.3", default-features = false }
 byte_string = { version = "1.0.0" }
+humanize = { git = "https://github.com/f1shl3gs/humanize", default-features = false, features = ["duration", "serde"], rev="765041c" }
 libc = { version = "0.2.127" }
 lru-cache = { version = "0.1.2" }
 memchr = { version = "2.5.0" }
@@ -51,7 +52,7 @@ serde_json = { version = "1.0.85", optional = true }
 serde_yaml = { version = "0.9.4" }
 shadowsocks = { path = "lib/shadowsocks" }
 thiserror = { version = "1.0.34" }
-url = { version = "2.3.1", default-featurs = false }
+url = { version = "2.3.1" }
 
 # Allocator
 # scudo/static must be used for aarch64-unknown-linux-musl

@@ -7,7 +7,6 @@ pub mod dns;
 mod http;
 mod log;
 mod relay;
-mod serde;
 mod trace;
 mod upstream;
 

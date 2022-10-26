@@ -438,6 +438,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c4a1e36c821dbe04574f602848a19f742f4fb3c98d40449f11bcad18d6b17421"
 
 [[package]]
+name = "humanize"
+version = "0.1.0"
+source = "git+https://github.com/f1shl3gs/humanize?rev=765041c#765041c0aeb3b567ba8912fa508f96e3d632b465"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "hyper"
 version = "0.14.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -819,6 +827,7 @@ dependencies = [
  "byteorder",
  "futures",
  "futures-util",
+ "humanize",
  "hyper",
  "hyper-rustls",
  "libc",

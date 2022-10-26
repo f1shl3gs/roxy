@@ -1,6 +1,5 @@
 use std::time::Duration;
 
-use crate::serde::duration;
 use serde::Deserialize;
 
 /// Interval between each check
@@ -26,9 +25,9 @@ pub enum LoadBalanceType {
 
 #[derive(Deserialize)]
 pub struct CheckConfig {
-    #[serde(with = "duration", default = "default_check_timeout")]
+    #[serde(with = "humanize::duration::serde", default = "default_check_timeout")]
     pub timeout: Duration,
-    #[serde(with = "duration", default = "default_check_interval")]
+    #[serde(with = "humanize::duration::serde", default = "default_check_interval")]
     pub interval: Duration,
 }
 
@@ -36,7 +35,7 @@ pub struct CheckConfig {
 pub struct ProviderConfig {
     pub endpoint: String,
 
-    #[serde(with = "duration")]
+    #[serde(with = "humanize::duration::serde")]
     pub interval: Duration,
 }
 

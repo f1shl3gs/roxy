@@ -18,7 +18,7 @@ pub struct UpstreamConfig {
 #[derive(Deserialize)]
 pub struct RejectConfig {
     pub endpoint: String,
-    #[serde(default, with = "crate::serde::duration::option")]
+    #[serde(default, with = "humanize::duration::serde_option")]
     pub interval: Option<Duration>,
 }
 
@@ -27,7 +27,7 @@ pub struct HijackConfig {
     pub endpoint: String,
     pub hijack: IpAddr,
 
-    #[serde(default, with = "crate::serde::duration::option")]
+    #[serde(default, with = "humanize::duration::serde_option")]
     pub interval: Option<Duration>,
 }
 
