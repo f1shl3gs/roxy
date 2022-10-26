@@ -49,7 +49,7 @@ publicsuffix = { git = "https://github.com/f1shl3gs/publicsuffix.git" }
 rand = { version = "0.8.5", default-features = false }
 serde = { version = "1.0.142", features = ["derive"] }
 serde_json = { version = "1.0.87", optional = true }
-serde_yaml = { version = "0.9.4" }
+serde_yaml = { version = "0.9.14" }
 shadowsocks = { path = "lib/shadowsocks" }
 thiserror = { version = "1.0.37" }
 url = { version = "2.3.1" }
