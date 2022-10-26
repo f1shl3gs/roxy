@@ -23,7 +23,7 @@ resolver = { path = "../resolver" }
 socket2 = { version = "0.4.4" }
 thiserror = { version = "1.0.37" }
 tokio = { version = "1.21.0", default-features = false, features = ["net"] }
-tracing = { version = "0.1.36", default-features = false }
+tracing = { version = "0.1.37", default-features = false }
 url = { version = "2.2.2" }
 
 # Ciphers & Crypto

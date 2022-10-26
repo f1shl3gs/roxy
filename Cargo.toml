@@ -60,7 +60,7 @@ scudo = { git = "https://github.com/f1shl3gs/rust-scudo", optional = true, featu
 
 # Log
 resolver = { path = "lib/resolver" }
-tracing = { version = "0.1.36", default-features = false }
+tracing = { version = "0.1.37", default-features = false }
 
 # DNS
 trust-dns-proto = { version = "0.22.0" }
