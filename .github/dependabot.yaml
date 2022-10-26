@@ -9,4 +9,4 @@ updates:
       - "deps"
     commit-message:
       prefix: "chore(deps)"
-      open-pull-requests-limit: 20
+    open-pull-requests-limit: 20
