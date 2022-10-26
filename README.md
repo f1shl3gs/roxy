@@ -11,7 +11,145 @@ Tested on my Workstation(AMD & Rocky Linux) and Mikrotik RB5009(awesome).
 3. OBFS plugin is not supported.
 
 ## Configuration
-examples/config.yaml
+```yaml
+# If this is not set, default value (cpu count) will be used.
+#
+# Optional
+# worker: 4
+
+# Resolver used for resolve the domains of providers, DNS over HTTP(S) and shadowsocks server
+#
+# Required
+resolvers:
+  - 114.114.114.114:53
+
+# Configuration for logs
+#
+# Optional
+log:
+  # Available values is `trace`, `debug`, `info`, `warn` and `error`.
+  # Note: Release build Roxy will not allowed `trace`.
+  #
+  # Required
+  level: info
+
+  # Sometimes timestamp is redundant, for example, running this in a container
+  #
+  # Optional
+  timestamp: true
+
+# RESTful API for Roxy stats
+#
+# Optional
+controller:
+  # Controller's listen address
+  #
+  # Required
+  listen: 0.0.0.0:9000
+
+# DNS server
+#
+# Required
+dns:
+  # TCP and UDP are listened
+  #
+  # Required
+  listen: 0.0.0.0:53
+
+  # Cache dns result from response, TTL will be set automatically.
+  #
+  # Optional
+  cache:
+    # max size of cached response
+    size: 512
+
+  # Reject some dns request by response with no records, it could be used
+  # for removing ads
+  #
+  # Optional
+  reject:
+    endpoint: https://raw.githubusercontent.com/Loyalsoldier/surge-rules/release/reject.txt
+    # cron might be a better solution, with cron we can update it as soon as possible
+    interval: 24h
+
+  # If the request domain match this it should be proxy by outbounds
+  #
+  # Optional
+  hijack:
+    endpoint: https://raw.githubusercontent.com/Loyalsoldier/surge-rules/release/gfw.txt
+    # cron might be a better solution, with cron we can update it as soon as possible
+    interval: 24h
+    # return this address to client, it should be the address Roxy listen to.
+    hijack: 127.0.0.1
+
+  # If the request domain not match `hosts`, `reject`,
+  # this will handle the request
+  #
+  # Required
+  upstream:
+    nameservers:
+    # If port is not provided, default value is used.
+    # tcp://1.1.1.1 or udp://1.1.1.1
+    - tls://dot.pub # Tencent DNS over TLS
+    - tls://dns.alidns.com # Aliyun DNS over TLS
+
+# upstream is used to define servers that can be referenced by THP
+#
+# Required
+upstream:
+  # Specifies a load balance method
+  #   1. `best`: the lowest latency server
+  #   2. `etld`: requests are distributed between servers based on request domain,
+  #      dead server will be skipped.
+  #
+  # Optional, default best
+  load_balance: best
+
+  # Check proxy's health
+  #
+  # Required
+  check:
+    # Interval seconds between each check
+    # Required
+    interval: 1h
+    # Timeout for check servers
+    # Required
+    timeout: 5s
+
+  # Load proxy server lists dynamically
+  #
+  # Required
+  provider:
+    # endpoint is the uri to fetch servers, The content is encoded with base64,
+    # after decode, the content is `ss` urls, looks like
+    # ss://YWVzLTI1Ni1jZmI6cGFzc3dvcmQ@127.0.0.1:8388/?plugin=obfs-local%3Bobfs%3Dhttp%3Bobfs-host%3Dwww.baidu.com
+    #
+    # Required
+    # NOTE: replace this with your own uri
+    endpoint: https://for.example.com/blah/blah
+
+    # Update servers every 24h, if this not specified, it will never update it
+    #
+    # Optional
+    interval: 24h
+
+# Transparent Http Proxy, this must works with dns hijack.
+# This component will read the first 1024 bytes of the TCP connect,
+# and parse it.
+#   1. Start with `GET`, `POST` and other HTTP's request head, then parse `Host` header,
+#      if roxy cannot find this `Host` header, the connection will be closed.
+#   2. Start with Handshake(ascii define, u8 = 22), the parse TLS' sni extention to find
+#      which domain the request want to connect.
+#
+# Required
+thp:
+  # Address listen to
+  #
+  # Required
+  listen:
+  - 0.0.0.0:80
+  - 0.0.0.0:443
+```
 
 ## Rules
 
