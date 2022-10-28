@@ -10,6 +10,37 @@ Tested on my Workstation(AMD & Rocky Linux) and Mikrotik RB5009(awesome).
      or 443(Limited by THP).
 3. OBFS plugin is not supported.
 
+## Build
+In addition to `rust`, you will need to following prerequisites installed on your system:
+- [cross](https://github.com/cross-rs/cross) for cross complition
+- Docker
+- [buildx](https://github.com/docker/buildx)
+
+```shell
+# Native
+make build
+
+# Other architecture
+make aarch64-unknown-linux-musl
+```
+
+### Docker Image
+Note: For now, RouterOS(7.6rc3) cannot mount files into container, and file management is not as flexible as
+any Linux distribution. Therefore you `must provide your own configuration file`.
+
+```
+# For example, build docker image for aarch64-unknown-linux-musl
+
+# By default, you cannot build other architecture image, so you might need run this
+docker run --privileged --rm tonistiigi/binfmt --install all
+
+# Copy binary
+cp target/aarch64-unknown-linux-musl/release/roxy ./roxy
+
+# Build image
+docker build -t roxy:aarch64-unknown-linux-musl --platform linux/arm64 .
+```
+
 ## Configuration
 ```yaml
 # If this is not set, default value (cpu count) will be used.
