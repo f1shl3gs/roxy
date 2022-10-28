@@ -1,5 +1,2 @@
 [target.aarch64-unknown-linux-musl]
 image = "ghcr.io/cross-rs/aarch64-unknown-linux-musl:0.2.4"
-
-[target.armv7-unknown-linux-musleabi]
-image = "ghcr.io/cross-rs/armv7-unknown-linux-musleabi:0.2.4"
