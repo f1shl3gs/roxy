@@ -1,5 +1,3 @@
-#![feature(test)]
-
 mod config;
 pub mod controller;
 mod datetime;
@@ -12,8 +10,6 @@ mod upstream;
 
 #[macro_use]
 extern crate tracing;
-
-extern crate test;
 
 pub use config::Config;
 pub use datetime::DateTime;
