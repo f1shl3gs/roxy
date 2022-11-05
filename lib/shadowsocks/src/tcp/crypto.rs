@@ -96,7 +96,7 @@ pub enum EncryptedWriter {
 
 /// Get sent IV(stream) or Salt (AEAD, AEAD2022)
 impl EncryptedWriter {
-    pub fn new(kind: CipherKind, key: &[u8], nonce: &[u8], identity_keys: &[Bytes]) -> Self {
+    pub fn new(kind: CipherKind, key: &[u8], nonce: &[u8], _identity_keys: &[Bytes]) -> Self {
         match kind.category() {
             CipherCategory::Aead => {
                 EncryptedWriter::Aead(aead::EncryptedWriter::new(kind, key, nonce))
