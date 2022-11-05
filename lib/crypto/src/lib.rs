@@ -1,7 +1,7 @@
 #![cfg_attr(target_arch = "aarch64", feature(stdsimd))]
 #![allow(unused_macros, unused_assignments)]
 
-mod blockcipher;
+pub mod blockcipher;
 mod blockmode;
 pub mod encoding;
 pub mod hash;

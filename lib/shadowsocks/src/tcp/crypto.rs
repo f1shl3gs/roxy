@@ -8,7 +8,7 @@ use tokio::io::{AsyncRead, AsyncWrite, ReadBuf};
 
 use crate::crypto::utils::generate_nonce;
 use crate::crypto::{CipherCategory, CipherKind};
-use crate::tcp::aead;
+use crate::tcp::{aead, aead2022};
 
 /// TCP shadowsocks protocol error
 #[derive(thiserror::Error, Debug)]
@@ -17,8 +17,8 @@ pub enum ProtocolError {
     Io(#[from] io::Error),
     #[error(transparent)]
     Aead(#[from] aead::ProtocolError),
-    // #[error(transparent)]
-    // Aead2022(#[from] aead2022::ProtocolError),
+    #[error(transparent)]
+    Aead2022(#[from] aead2022::ProtocolError),
 }
 
 impl From<ProtocolError> for io::Error {
@@ -26,14 +26,14 @@ impl From<ProtocolError> for io::Error {
         match err {
             ProtocolError::Io(err) => err,
             ProtocolError::Aead(err) => err.into(),
-            // ProtocolError::Aead2022(err) => err.into(),
+            ProtocolError::Aead2022(err) => err.into(),
         }
     }
 }
 
 pub enum DecryptedReader {
     Aead(aead::DecryptedReader),
-    Aead2022,
+    Aead2022(aead2022::DecryptedReader),
 }
 
 impl DecryptedReader {
@@ -42,7 +42,7 @@ impl DecryptedReader {
         match kind.category() {
             CipherCategory::Aead => DecryptedReader::Aead(aead::DecryptedReader::new(kind, key)),
             CipherCategory::Aead2022 => {
-                todo!()
+                DecryptedReader::Aead2022(aead2022::DecryptedReader::new(kind, key))
             }
         }
     }
@@ -50,14 +50,14 @@ impl DecryptedReader {
     fn user_key(&self) -> Option<&[u8]> {
         match *self {
             DecryptedReader::Aead(_) => None,
-            DecryptedReader::Aead2022 => todo!(),
+            DecryptedReader::Aead2022(ref reader) => reader.user_key(),
         }
     }
 
     pub fn request_nonce(&self) -> Option<&[u8]> {
         match *self {
             DecryptedReader::Aead(_) => None,
-            DecryptedReader::Aead2022 => todo!(),
+            DecryptedReader::Aead2022(ref reader) => reader.request_salt(),
         }
     }
 
@@ -75,21 +75,23 @@ impl DecryptedReader {
             DecryptedReader::Aead(ref mut reader) => reader
                 .poll_read_decrypted(cx, stream, buf)
                 .map_err(Into::into),
-            DecryptedReader::Aead2022 => todo!(),
+            DecryptedReader::Aead2022(ref mut reader) => reader
+                .poll_read_decrypted(cx, stream, buf)
+                .map_err(Into::into),
         }
     }
 
     pub fn handshaked(&self) -> bool {
         match *self {
             DecryptedReader::Aead(ref reader) => reader.handshaked(),
-            DecryptedReader::Aead2022 => todo!(),
+            DecryptedReader::Aead2022(ref reader) => reader.handshaked(),
         }
     }
 }
 
 pub enum EncryptedWriter {
     Aead(aead::EncryptedWriter),
-    Aead2022,
+    Aead2022(aead2022::EncryptedWriter),
 }
 
 /// Get sent IV(stream) or Salt (AEAD, AEAD2022)
@@ -99,21 +101,23 @@ impl EncryptedWriter {
             CipherCategory::Aead => {
                 EncryptedWriter::Aead(aead::EncryptedWriter::new(kind, key, nonce))
             }
-            CipherCategory::Aead2022 => todo!(),
+            CipherCategory::Aead2022 => {
+                EncryptedWriter::Aead2022(aead2022::EncryptedWriter::new(kind, key, nonce))
+            }
         }
     }
 
     fn nonce(&self) -> &[u8] {
         match *self {
             EncryptedWriter::Aead(ref writer) => writer.salt(),
-            EncryptedWriter::Aead2022 => todo!(),
+            EncryptedWriter::Aead2022(ref writer) => writer.salt(),
         }
     }
 
     /// Reset cipher with authenticated user key
     pub fn reset_cipher_with_key(&mut self, key: &[u8]) {
         match *self {
-            EncryptedWriter::Aead2022 => todo!(),
+            EncryptedWriter::Aead2022(ref mut writer) => writer.reset_cipher_with_key(key),
             _ => panic!("only AEAD-2022 cipher could authenticate with multiple users"),
         }
     }
@@ -132,7 +136,9 @@ impl EncryptedWriter {
             EncryptedWriter::Aead(ref mut writer) => writer
                 .poll_write_encrypted(cx, stream, buf)
                 .map_err(Into::into),
-            EncryptedWriter::Aead2022 => todo!(),
+            EncryptedWriter::Aead2022(ref mut writer) => writer
+                .poll_write_encrypted(cx, stream, buf)
+                .map_err(Into::into),
         }
     }
 }

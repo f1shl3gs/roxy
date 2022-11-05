@@ -44,9 +44,9 @@
 //! +--------------+---------------+--------------+------------+
 //! ```
 
-use aes_gcm::aes::cipher::BlockEncrypt;
+/*use aes_gcm::aes::cipher::BlockEncrypt;
 use aes_gcm::aes::{Aes128, Aes256, Block};
-use aes_gcm::KeyInit;
+use aes_gcm::KeyInit;*/
 use std::io::{Cursor, ErrorKind, Read};
 use std::pin::Pin;
 use std::task::{Context, Poll};
@@ -57,6 +57,7 @@ use bytes::{Buf, BufMut, Bytes, BytesMut};
 use futures::ready;
 use tokio::io::{AsyncRead, AsyncWrite, ReadBuf};
 use tracing::{error, trace};
+use crypto::blockcipher::{Aes128, Aes256};
 
 use crate::config::method_support_eih;
 use crate::crypto::{Cipher, CipherKind};
@@ -463,42 +464,22 @@ impl EncryptedWriter {
         // https://github.com/Shadowsocks-NET/shadowsocks-specs/blob/main/2022-2-shadowsocks-2022-extensible-identity-headers.md
         #[inline]
         fn make_eih(method: CipherKind, sub_key: &[u8], ipsk: &[u8], buffer: &mut BytesMut) {
-            let ipsk_hash = blake3::hash(ipsk);
-            let ipsk_plain_text = &ipsk_hash.as_bytes()[0..16];
+            let mut ipsk_hash = blake3::hash(ipsk);
+            let ipsk_plain_text = &mut ipsk_hash.as_bytes()[0..16];
 
             match method {
                 CipherKind::AEAD2022_BLAKE3_AES_128_GCM => {
-                    let enc_key = &sub_key[0..16];
-                    let cipher = Aes128::new_from_slice(enc_key).expect("AES-128");
-
-                    let ipsk_plain_text = Block::from_slice(ipsk_plain_text);
-                    let mut block = Block::from([0u8; 16]);
-                    cipher.encrypt_block_b2b(ipsk_plain_text, &mut block);
-
-                    trace!(
-                        "client EIH {:?}, hash: {:?}",
-                        ByteStr::new(block.as_slice()),
-                        ByteStr::new(ipsk_plain_text)
-                    );
-                    buffer.put(block.as_slice());
+                    let cipher = Aes128::new(&sub_key[0..16]);
+                    cipher.encrypt(&mut ipsk_plain_text);
                 }
                 CipherKind::AEAD2022_BLAKE3_AES_256_GCM => {
-                    let enc_key = &sub_key[0..32];
-                    let cipher = Aes256::new_from_slice(enc_key).expect("AES-256");
-
-                    let ipsk_plain_text = Block::from_slice(ipsk_plain_text);
-                    let mut block = Block::from([0u8; 16]);
-                    cipher.encrypt_block_b2b(ipsk_plain_text, &mut block);
-
-                    trace!(
-                        "client EIH {:?}, hash: {:?}",
-                        ByteStr::new(block.as_slice()),
-                        ByteStr::new(ipsk_plain_text)
-                    );
-                    buffer.put(block.as_slice());
+                    let cipher = Aes256::new(&sub_key[0..32]);
+                    cipher.encrypt(&mut ipsk_plain_text);
                 }
                 _ => unreachable!("{} doesn't support EIH", method),
             }
+
+            buffer.put(&ipsk_plain_text);
         }
 
         if method_support_eih(method) {

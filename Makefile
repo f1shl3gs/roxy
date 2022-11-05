@@ -1,6 +1,9 @@
 fmt:
 	cargo fmt
 
+check:
+	cargo check
+
 bloat:
 	cargo bloat -n 50 --crates
 
