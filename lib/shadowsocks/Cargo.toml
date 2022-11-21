@@ -28,5 +28,5 @@ url = { version = "2.2.2" }
 
 # Ciphers & Crypto
 crypto = { path = "../crypto" }
-blake3 = { version = "1.3.1" }
+blake3 = { version = "1.3.2" }
 chacha20poly1305 = { version = "0.10.1", features = [ "reduced-round" ] }
