@@ -74,5 +74,5 @@ hyper-rustls = { version = "0.23.1", default-features = false, features = ["http
 # Async
 futures = { version = "0.3.25", default-features = false, features = ["async-await"] }
 futures-util = { version = "0.3.24" }
-tokio = { version = "1.22.0", default-features = false, features = [ "net", "time", "macros", "signal" ] }
+tokio = { version = "1.23.0", default-features = false, features = [ "net", "time", "macros", "signal" ] }
 tokio-util = { version = "0.7.4", default-features = false, features = ["io"] }
