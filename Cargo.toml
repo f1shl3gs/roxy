@@ -69,7 +69,7 @@ bloom = { version = "0.3.2", optional = true }
 
 # HTTP
 hyper = { version = "0.14.23", default-features = false, features = ["client", "http1", "server", "tcp", "stream"] }
-hyper-rustls = { version = "0.23.1", default-features = false, features = ["http1", "native-tokio" ] }
+hyper-rustls = { version = "0.23.2", default-features = false, features = ["http1", "native-tokio" ] }
 
 # Async
 futures = { version = "0.3.25", default-features = false, features = ["async-await"] }
