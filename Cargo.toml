@@ -35,7 +35,7 @@ members = [
 ]
 
 [dependencies]
-base64 = { version = "0.13.1" }
+base64 = { version = "0.20.0" }
 byteorder = { version = "1.4.3", default-features = false }
 byte_string = { version = "1.0.0" }
 humanize = { git = "https://github.com/f1shl3gs/humanize", default-features = false, features = ["duration", "serde"], rev="765041c" }
