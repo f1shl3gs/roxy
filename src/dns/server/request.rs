@@ -7,6 +7,7 @@ use trust_dns_proto::serialize::binary::{BinDecodable, BinDecoder};
 use trust_dns_proto::xfer::SerialMessage;
 
 /// An incoming request to the DNS catalog
+#[allow(dead_code)]
 pub struct Request {
     // message fields
     pub(crate) header: Header,

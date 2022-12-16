@@ -44,9 +44,6 @@
 //! +--------------+---------------+--------------+------------+
 //! ```
 
-/*use aes_gcm::aes::cipher::BlockEncrypt;
-use aes_gcm::aes::{Aes128, Aes256, Block};
-use aes_gcm::KeyInit;*/
 use std::io::{Cursor, ErrorKind, Read};
 use std::pin::Pin;
 use std::task::{Context, Poll};
@@ -464,22 +461,23 @@ impl EncryptedWriter {
         // https://github.com/Shadowsocks-NET/shadowsocks-specs/blob/main/2022-2-shadowsocks-2022-extensible-identity-headers.md
         #[inline]
         fn make_eih(method: CipherKind, sub_key: &[u8], ipsk: &[u8], buffer: &mut BytesMut) {
-            let mut ipsk_hash = blake3::hash(ipsk);
-            let ipsk_plain_text = &mut ipsk_hash.as_bytes()[0..16];
+            let ipsk_hash = blake3::hash(ipsk);
+            let mut ipsk_plain_text: [u8; 32] = ipsk_hash.into();
+            let block = &mut ipsk_plain_text[0..16];
 
             match method {
                 CipherKind::AEAD2022_BLAKE3_AES_128_GCM => {
                     let cipher = Aes128::new(&sub_key[0..16]);
-                    cipher.encrypt(&mut ipsk_plain_text);
+                    cipher.encrypt(block);
                 }
                 CipherKind::AEAD2022_BLAKE3_AES_256_GCM => {
                     let cipher = Aes256::new(&sub_key[0..32]);
-                    cipher.encrypt(&mut ipsk_plain_text);
+                    cipher.encrypt(block);
                 }
                 _ => unreachable!("{} doesn't support EIH", method),
             }
 
-            buffer.put(&ipsk_plain_text);
+            buffer.put_slice(block)
         }
 
         if method_support_eih(method) {

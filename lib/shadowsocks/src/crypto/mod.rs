@@ -2,7 +2,6 @@ pub mod aead;
 mod cipher;
 mod kind;
 pub mod utils;
-// pub mod v2;
 
 use std::fmt::{Display, Formatter};
 use std::str::FromStr;
@@ -59,8 +58,8 @@ impl CipherKind {
             CipherKind::AES_256_GCM => 256 / 8,
 
             // AEAD2022
-            CipherKind::AEAD2022_BLAKE3_AES_128_GCM => todo!(),
-            CipherKind::AEAD2022_BLAKE3_AES_256_GCM => todo!(),
+            CipherKind::AEAD2022_BLAKE3_AES_128_GCM => 128 / 8,
+            CipherKind::AEAD2022_BLAKE3_AES_256_GCM => 256 / 8,
             CipherKind::AEAD2022_BLAKE3_CHACHA20_POLY1305 => todo!(),
             CipherKind::AEAD2022_BLAKE3_CHACHA8_POLY1305 => todo!(),
         }
