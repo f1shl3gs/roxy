@@ -54,10 +54,10 @@ use std::{io, slice, task};
 
 use byte_string::ByteStr;
 use bytes::{Buf, BufMut, Bytes, BytesMut};
+use crypto::blockcipher::{Aes128, Aes256};
 use futures::ready;
 use tokio::io::{AsyncRead, AsyncWrite, ReadBuf};
 use tracing::{error, trace};
-use crypto::blockcipher::{Aes128, Aes256};
 
 use crate::config::method_support_eih;
 use crate::crypto::{Cipher, CipherKind};
