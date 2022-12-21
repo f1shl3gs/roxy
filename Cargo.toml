@@ -42,7 +42,7 @@ humanize = { git = "https://github.com/f1shl3gs/humanize", default-features = fa
 libc = { version = "0.2.138" }
 lru-cache = { version = "0.1.2" }
 memchr = { version = "2.5.0" }
-num_cpus = { version = "1.14.0" }
+num_cpus = { version = "1.15.0" }
 parking_lot = { version = "0.12.1" }
 pin-project-lite = { version = "0.2.9" }
 publicsuffix = { git = "https://github.com/f1shl3gs/publicsuffix.git" }
