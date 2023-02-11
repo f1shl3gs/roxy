@@ -15,7 +15,6 @@ use upstream::Upstream;
 
 use super::config::{CacheConfig, HijackConfig, RejectConfig};
 use super::{Error, Request, Response};
-use crate::dns::UpstreamConfig;
 
 pub struct Handler {
     cache: Option<Cache>,
@@ -30,7 +29,7 @@ impl Handler {
         _hosts: Option<BTreeMap<String, String>>,
         reject: Option<RejectConfig>,
         hijack: Option<HijackConfig>,
-        upstream: UpstreamConfig,
+        upstream: Vec<String>,
         resolver: Resolver,
     ) -> Result<Self, Error> {
         let cache = cache.map(|c| Cache::new(c.size));
@@ -54,7 +53,7 @@ impl Handler {
             None => None,
         };
 
-        let upstream = Upstream::new(upstream.nameservers, &resolver).await?;
+        let upstream = Upstream::new(upstream, &resolver).await?;
 
         Ok(Self {
             cache,

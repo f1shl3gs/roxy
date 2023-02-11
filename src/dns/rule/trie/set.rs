@@ -35,7 +35,7 @@ impl Trie {
         self.entries.insert(s);
     }
 
-    pub fn contain(&self, name: &Name) -> bool {
+    pub fn contains(&self, name: &Name) -> bool {
         let length = name.num_labels() as usize;
         let segments = name.iter().rev();
 
@@ -94,7 +94,7 @@ mod tests {
 
             assert!(name.is_fqdn());
             assert_eq!(
-                trie.contain(&name),
+                trie.contains(&name),
                 want,
                 "input: {}, want: {}",
                 input,

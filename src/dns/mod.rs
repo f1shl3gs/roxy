@@ -6,6 +6,6 @@ mod handle;
 mod rule;
 mod server;
 
-pub use config::{Config, UpstreamConfig};
+pub use config::Config;
 pub use error::Error;
 pub use server::{Request, Response, Server};

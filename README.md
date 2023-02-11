@@ -87,6 +87,16 @@ dns:
   # Required
   listen: 0.0.0.0:53
 
+  # If the request domain not match `hosts`, `reject`,
+  # this will handle the request
+  #
+  # Required
+  upstream:
+    # If port is not provided, default value is used.
+    # tcp://1.1.1.1 or udp://1.1.1.1
+    - tls://dot.pub # Tencent DNS over TLS
+    - tls://dns.alidns.com # Aliyun DNS over TLS
+
   # Cache dns result from response, TTL will be set automatically.
   #
   # Optional
@@ -113,17 +123,6 @@ dns:
     # return this address to client, it should be the address Roxy listen to.
     hijack: 127.0.0.1
 
-  # If the request domain not match `hosts`, `reject`,
-  # this will handle the request
-  #
-  # Required
-  upstream:
-    nameservers:
-    # If port is not provided, default value is used.
-    # tcp://1.1.1.1 or udp://1.1.1.1
-    - tls://dot.pub # Tencent DNS over TLS
-    - tls://dns.alidns.com # Aliyun DNS over TLS
-
 # upstream is used to define servers that can be referenced by THP
 #
 # Required
@@ -136,7 +135,7 @@ upstream:
   # Optional, default best
   load_balance: best
 
-  # Check proxy's health
+  # Check proxy's health.
   #
   # Required
   check:

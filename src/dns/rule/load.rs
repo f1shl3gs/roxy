@@ -40,14 +40,20 @@ pub async fn load(endpoint: &str, resolver: Resolver) -> Result<(Trie, u32), Err
         return Err(Error::UnexpectedStatusCode(parts.status));
     }
 
-    let cap = parts
-        .headers
-        .get(CONTENT_LENGTH)
-        .and_then(|val| val.to_str().ok())
-        .and_then(|s| s.parse::<u32>().ok())
-        .map(|l| l / 15) // 15 is just a result of test case, it should works well.
-        .unwrap_or(50000);
-    let mut trie = Trie::new_with_size(cap);
+    #[cfg(feature = "bloom-trie")]
+    let mut trie = {
+        let cap = parts
+            .headers
+            .get(CONTENT_LENGTH)
+            .and_then(|val| val.to_str().ok())
+            .and_then(|s| s.parse::<u32>().ok())
+            .map(|l| l / 15) // 15 is just a result of test case, it should works well.
+            .unwrap_or(80000);
+        Trie::new_with_size(cap)
+    };
+
+    #[cfg(feature = "set-trie")]
+    let mut trie = Trie::new();
 
     let mut reader =
         StreamReader::new(body.map_err(|err| std::io::Error::new(ErrorKind::Other, err)));

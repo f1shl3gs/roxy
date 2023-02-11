@@ -11,11 +11,6 @@ pub struct CacheConfig {
 }
 
 #[derive(Deserialize)]
-pub struct UpstreamConfig {
-    pub(crate) nameservers: Vec<String>,
-}
-
-#[derive(Deserialize)]
 pub struct RejectConfig {
     pub endpoint: String,
     #[serde(default, with = "humanize::duration::serde_option")]
@@ -34,8 +29,9 @@ pub struct HijackConfig {
 #[derive(Deserialize)]
 pub struct Config {
     pub listen: String,
+    pub upstream: Vec<String>,
+
     pub cache: Option<CacheConfig>,
-    pub upstream: UpstreamConfig,
     pub hosts: Option<BTreeMap<String, String>>,
     pub reject: Option<RejectConfig>,
     pub hijack: Option<HijackConfig>,

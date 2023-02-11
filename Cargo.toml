@@ -14,7 +14,7 @@ codegen-units = 1
 default = [
     "controller",
     "dns",
-    "bloom-trie",
+    "set-trie",
     "tracing/max_level_debug"
 ]
 
