@@ -48,7 +48,7 @@ pin-project-lite = { version = "0.2.9" }
 publicsuffix = { git = "https://github.com/f1shl3gs/publicsuffix.git" }
 rand = { version = "0.8.5", default-features = false }
 serde = { version = "1.0.152", features = ["derive"] }
-serde_json = { version = "1.0.93", optional = true }
+serde_json = { version = "1.0.94", optional = true }
 serde_yaml = { version = "0.9.19" }
 shadowsocks = { path = "lib/shadowsocks" }
 thiserror = { version = "1.0.39" }
