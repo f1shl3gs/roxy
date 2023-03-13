@@ -10,4 +10,4 @@ default = [
 ]
 
 [dependencies]
-serde = { version = "1.0.154", default-features = false, optional = true }
+serde = { version = "1.0.155", default-features = false, optional = true }
