@@ -13,7 +13,7 @@ trust-dns-resolver = { version = "0.22.0" }
 [dependencies]
 bytes = { version = "1.4.0" }
 byte_string = { version = "1.0.0" }
-futures = { version = "0.3.26", default-features = false, features = ["async-await"] }
+futures = { version = "0.3.27", default-features = false, features = ["async-await"] }
 libc = { version = "0.2.140" }
 lru-cache = { version = "0.1.2" }
 percent-encoding = { version = "2.1.0" }
