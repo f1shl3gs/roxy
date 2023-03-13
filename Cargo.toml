@@ -72,7 +72,7 @@ hyper = { version = "0.14.24", default-features = false, features = ["client", "
 hyper-rustls = { version = "0.23.2", default-features = false, features = ["http1", "native-tokio" ] }
 
 # Async
-futures = { version = "0.3.26", default-features = false, features = ["async-await"] }
+futures = { version = "0.3.27", default-features = false, features = ["async-await"] }
 tokio = { version = "1.26.0", default-features = false, features = [ "net", "time", "macros", "signal" ] }
 futures-util = { version = "0.3.26" }
 tokio-util = { version = "0.7.7", default-features = false, features = ["io"] }
