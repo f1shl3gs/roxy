@@ -39,7 +39,7 @@ base64 = { version = "0.21.0" }
 byteorder = { version = "1.4.3", default-features = false }
 byte_string = { version = "1.0.0" }
 humanize = { git = "https://github.com/f1shl3gs/humanize", default-features = false, features = ["duration", "serde"], rev="765041c" }
-libc = { version = "0.2.140" }
+libc = { version = "0.2.141" }
 lru-cache = { version = "0.1.2" }
 memchr = { version = "2.5.0" }
 num_cpus = { version = "1.15.0" }
